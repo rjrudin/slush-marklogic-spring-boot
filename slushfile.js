@@ -73,7 +73,7 @@ gulp.task('default', function (done) {
     // gulp-template bombs on certain font files, so using gulpif to not process them
     var isFont = function(file) {
       var rel = file.relative;
-      return !rel.startsWith('src\\main\\webapp\\fonts') && !rel.startsWith('src/main/webapp/fonts');
+      return rel.indexOf('src\\main\\webapp\\fonts') == -1 && rel.indexOf('src/main/webapp/fonts') == -1;
     };
 
     // Tell lodash to only interpolate <%= and %>; we need to ignore ${ and } as

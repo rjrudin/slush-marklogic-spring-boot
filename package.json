@@ -39,8 +39,5 @@
     "slushgenerator",
     "marklogic",
     "springboot"
-  ],
-  "devDependencies": {
-    "gulp-if": "^2.0.0"
-  }
+  ]
 }
