@@ -1,4 +1,4 @@
-# Slush Marklogic-spring-boot [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-marklogic-spring-boot.png)](http://badges.enytc.com/for/npm/slush-marklogic-spring-boot)
+# slush-marklogic-spring-boot [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-marklogic-spring-boot.png)](http://badges.enytc.com/for/npm/slush-marklogic-spring-boot)
 
 > Generator for Angular/Spring Boot/MarkLogic apps
 
@@ -16,13 +16,13 @@ $ npm install -g slush-marklogic-spring-boot
 Create a new folder for your project:
 
 ```bash
-$ mkdir my-slush-marklogic-spring-boot
+$ mkdir my-app
 ```
 
 Run the generator from within the new folder:
 
 ```bash
-$ cd my-slush-marklogic-spring-boot && slush marklogic-spring-boot
+$ cd my-app && slush marklogic-spring-boot
 ```
 
 As of version 0.1.1, the generator will install Bower and Node dependencies for you. 
