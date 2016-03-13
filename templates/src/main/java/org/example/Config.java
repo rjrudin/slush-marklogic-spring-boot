@@ -1,0 +1,89 @@
+package org.example;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import com.marklogic.spring.http.RestConfig;
+import com.marklogic.spring.http.proxy.HttpProxy;
+import com.marklogic.spring.security.authentication.MarkLogicAuthenticationManager;
+import com.marklogic.spring.security.context.SpringSecurityCredentialsProvider;
+import com.marklogic.spring.security.web.util.matcher.CorsRequestMatcher;
+
+/**
+ * Extends Spring Boot's default web security configuration class and hooks in MarkLogic-specific classes from
+ * marklogic-spring-web. Feel free to customize as needed.
+ */
+@Configuration
+@EnableWebSecurity
+public class Config extends WebSecurityConfigurerAdapter {
+
+    /**
+     * @return a config class with ML connection properties
+     */
+    @Bean
+    public RestConfig restConfig() {
+        return new RestConfig();
+    }
+
+    /**
+     * @return an HttpProxy that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
+     *         Spring Security for credentials - this relies on Spring Security not erasing the user's credentials so
+     *         that the username/password can be passed to MarkLogic on every request for authentication.
+     */
+    @Bean
+    public HttpProxy httpProxy() {
+        return new HttpProxy(restConfig(), new SpringSecurityCredentialsProvider());
+    }
+
+    /**
+     * We seem to need this defined as a bean; otherwise, aspects of the default Spring Boot security will still remain.
+     * 
+     * @return
+     */
+    @Bean
+    public MarkLogicAuthenticationManager markLogicAuthenticationManager() {
+        return new MarkLogicAuthenticationManager(restConfig());
+    }
+
+    /**
+     * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
+     * manager that Spring Boot uses by default. We also have to set eraseCredentials to false so that the password is
+     * kept in the Authentication object, which allows HttpProxy to use it when authenticating against MarkLogic.
+     */
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        super.configure(auth);
+        auth.parentAuthenticationManager(markLogicAuthenticationManager());
+        auth.eraseCredentials(false);
+    }
+
+    /**
+     * Configures what requests require authentication and which ones are always permitted. Uses CorsRequestMatcher to
+     * allow for certain requests - e.g. put/post/delete requests - to be proxied successfully back to MarkLogic.
+     * 
+     * This uses a form login by default, as for many MarkLogic apps (particularly demos), it's convenient to be able to
+     * easily logout and login as a different user to show off security features. Spring Security has a very plain form
+     * login page - you can customize this, just google for examples.
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().requireCsrfProtectionMatcher(new CorsRequestMatcher()).and().authorizeRequests()
+                .antMatchers(getAlwaysPermittedPatterns()).permitAll().anyRequest().authenticated().and().formLogin()
+                .loginPage("/login").permitAll();
+    }
+
+    /**
+     * Defines a set of URLs that are always permitted - these are based on the presumed contents of the
+     * src/main/resources/static directory.
+     * 
+     * @return
+     */
+    protected String[] getAlwaysPermittedPatterns() {
+        return new String[] { "/bower_components/**", "/fonts/**", "/images/**", "/styles/**" };
+    }
+
+}

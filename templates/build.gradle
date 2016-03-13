@@ -1,0 +1,49 @@
+buildscript {
+  // Load MarkLogic properties from the Spring Boot properties file to avoid duplication
+  Properties props = new Properties()
+  props.load(new FileInputStream("src/main/resources/application.properties"))
+  props.each { prop ->
+    if (prop.key.startsWith("marklogic")) {
+      project.ext.set(prop.key, prop.value)
+    }
+  }
+  
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
+	}
+}
+
+plugins {
+	id "java"
+	id "eclipse"
+  id "com.marklogic.ml-gradle" version "2.0"
+}
+
+apply plugin: 'spring-boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  jcenter()
+  
+  // Needed for mlcp and its Hadoop dependencies
+  maven {url "http://developer.marklogic.com/maven2/"}
+  maven {url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
+}
+
+configurations {
+  mlcp
+}
+
+dependencies {
+  compile "com.marklogic:marklogic-spring-web:0.1.1"
+  
+  compile("org.springframework.boot:spring-boot-devtools")
+  compile("org.springframework.boot:spring-boot-starter-security")
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+	compile("org.springframework.boot:spring-boot-starter-web")
+
+  mlcp "com.marklogic:mlcp-Hadoop2:1.3-2"
+  mlcp "com.marklogic:marklogic-mapreduce2:2.1.3"
+}

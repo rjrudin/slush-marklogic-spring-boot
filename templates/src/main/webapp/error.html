@@ -1,0 +1,34 @@
+<html>
+
+<head>
+<base href="/" />
+<meta charset="utf-8" />
+<title><%= appName %></title>
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width" />
+<link rel="shortcut icon" th:href="@{images/favicon.ico}" />
+<!-- bower:css -->
+<!-- endbower -->
+<!-- inject:css -->
+<!-- endinject -->
+</head>
+
+<body>
+  <div class="container">
+    <center>
+      <h2>Oops! An error has occurred</h2>
+      <ul>
+        <li>Timestamp: <span th:text="${timestamp}"></span></li>
+        <li>Path: <span th:text="${path}"></span></li>
+        <li>HTTP Status: <span th:text="${status}"></span></li>
+        <li>Error: <span th:text="${error}"></span></li>
+        <li>Message: <span th:text="${message}"></span></li>
+      </ul>
+      <p>
+        <a href="/">Return to the home page</a>
+      </p>
+      <center>
+  </div>
+</body>
+
+</html>

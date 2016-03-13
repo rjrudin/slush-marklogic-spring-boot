@@ -1,0 +1,31 @@
+{
+  "name": "<%= appName %>",
+  "version": "0.0.0",
+  "dependencies": {
+    "angular": "~1.4.4",
+    "angular-bootstrap": "~0.13.3",
+    "angular-cookies": "~1.4.4",
+    "angular-highlightjs": "~0.4.3",
+    "angular-mocks": "~1.4.4",
+    "angular-ui-router": "~0.2.15",
+    "angular-x2js": "https://github.com/janmichaelyu/angular-x2js.git",
+    "bootstrap": "~3.3.5",
+    "font-awesome": "~4.4.0",
+    "highlightjs":"~8.7.0",
+    "jquery": "~2.1.4",
+    "lodash": "~3.10.1",
+    "ml-search-ng": "~0.2.0",
+    "ml-utils": "withjam/ml-utils",
+    "ng-json-explorer": "8c2a0f9104",
+    "vkbeautify-wrapper": "*"
+  },
+  "overrides": {
+    "angular-highlightjs": {
+      "dependencies": {"angular" : ">1.0.8", "highlightjs":"~8.7.0"}
+    }
+  },
+  "private": true,
+  "resolutions": {
+    "angular": "~1.4.4"
+  }
+}
