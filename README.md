@@ -25,6 +25,25 @@ Run the generator from within the new folder:
 $ cd my-slush-marklogic-spring-boot && slush marklogic-spring-boot
 ```
 
+As of version 0.1.1, the generator will install Bower and Node dependencies for you. 
+It doesn't yet deploy the MarkLogic application or build the webapp. So you need to
+do those manually (note that 0.1.1 doesn't have the Gradle wrapper yet either):
+
+    gradle mlDeploy
+    gulp build
+
+Once you've run those, you can launch Spring Boot via the command line:
+
+    gradle bootRun
+
+Or, since you have a Java middle tier, you'll probably want to load the project into
+an IDE like Eclipse and run Spring Boot from there:
+
+    gradle eclipse
+
+And then import the project and run "org.example.App".
+
+
 ## Getting To Know Slush
 
 Slush is a tool that uses Gulp for project scaffolding.

@@ -34,6 +34,8 @@ var paths = {
   }
 };
 
+gulp.task('default', 'build');
+
 /*
  * Perform the full build process so that Spring Boot has all the client files it needs.
  */
