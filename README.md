@@ -1,4 +1,4 @@
-# Slush Marklogic-spring-boot [![Build Status](https://secure.travis-ci.org/rjrudin/slush-marklogic-spring-boot.png?branch=master)](https://travis-ci.org/rjrudin/slush-marklogic-spring-boot) [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-marklogic-spring-boot.png)](http://badges.enytc.com/for/npm/slush-marklogic-spring-boot)
+# Slush Marklogic-spring-boot [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-marklogic-spring-boot.png)](http://badges.enytc.com/for/npm/slush-marklogic-spring-boot)
 
 > Generator for Angular/Spring Boot/MarkLogic apps
 
