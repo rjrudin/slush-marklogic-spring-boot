@@ -25,9 +25,9 @@ Run the generator from within the new folder:
 $ cd my-app && slush marklogic-spring-boot
 ```
 
-As of version 0.1.1, the generator will install Bower and Node dependencies for you. 
+As of version 0.1.x, the generator will install Bower and Node dependencies for you. 
 It doesn't yet deploy the MarkLogic application or build the webapp. It also assumes
-that your admin username/password is admin/admin. If you need to modify that, first do so in the gradle.properties file. Then run these commands (note that 0.1.1 doesn't have the Gradle wrapper yet either):
+that your admin username/password is admin/admin. If you need to modify that, first do so in the gradle.properties file. Then run these commands (note that 0.1.x doesn't have the Gradle wrapper yet either):
 
     gradle mlDeploy
     gulp build
