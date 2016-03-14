@@ -43,6 +43,16 @@ an IDE like Eclipse and run Spring Boot from there:
 
 And then import the project and run "org.example.App".
 
+## Integration points with Spring Boot
+
+1. Spring Boot uses Spring Security for managing authentication; the generated project by default uses a form login for authentication and passes the credentials through to MarkLogic for verification
+2. Requests from Angular to the MarkLogic REST API are proxied via a Spring MVC controller
+3. The Gulp build file is a minimal approach for deploying everything to the src/main/resources/templates and src/main/resources/static directories - where Spring Boot expects to find static content
+
+## Why Spring Boot?
+
+1. Spring Boot is one of the fastest, easiest ways to get a webapp up and running with a Java middle tier
+2. Spring Boot supports packaging up the entire application (gradle assemble) as a single executable jar for easy deployment
 
 ## Getting To Know Slush
 
