@@ -12,6 +12,7 @@ var gulp = require('gulp'),
   gulpif = require('gulp-if'),
   install = require('gulp-install'),
   conflict = require('gulp-conflict'),
+  chmod = require('gulp-chmod'),
   template = require('gulp-template'),
   rename = require('gulp-rename'),
   _ = require('underscore.string'),
@@ -71,9 +72,18 @@ gulp.task('default', function (done) {
     ];
 
     // gulp-template bombs on certain font files, so using gulpif to not process them
-    var isFont = function(file) {
+    var isTemplateable = function(file) {
       var rel = file.relative;
-      return rel.indexOf('src\\main\\webapp\\fonts') == -1 && rel.indexOf('src/main/webapp/fonts') == -1;
+      var result = 
+        rel.indexOf('src\\main\\webapp\\fonts') == -1 && 
+        rel.indexOf('src/main/webapp/fonts') == -1 &&
+        rel.indexOf('gradle-wrapper') == -1;
+      return result;
+    };
+
+    // Need to make the gradlew scripts executable
+    var isExecutable = function(file) {
+      return file.relative.indexOf('gulp-chmod') > -1;
     };
 
     // Tell lodash to only interpolate <%= and %>; we need to ignore ${ and } as
@@ -91,12 +101,13 @@ gulp.task('default', function (done) {
         function (answers) {
             answers.appNameSlug = _.slugify(answers.appName);
             gulp.src(__dirname + '/templates/**', srcOptions)
-                .pipe(gulpif(isFont, template(answers, templateOptions)))
+                .pipe(gulpif(isTemplateable, template(answers, templateOptions)))
                 .pipe(rename(function (file) {
                     if (file.basename[0] === '_') {
                         file.basename = '.' + file.basename.slice(1);
                     }
                 }))
+                .pipe(gulpif(isExecutable, chmod(755)))
                 .pipe(conflict('./'))
                 .pipe(gulp.dest('./'))
                 .pipe(install())
