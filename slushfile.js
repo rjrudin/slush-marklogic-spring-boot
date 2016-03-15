@@ -56,12 +56,27 @@ gulp.task('default', function (done) {
     var prompts = [
       {
         name: 'appName',
-        message: 'What is the name of your project?',
+        message: 'What is the name of your application?',
         default: defaults.appName
       },
       {
+        name: 'appHost',
+        message: 'What MarkLogic host do you want to deploy to?',
+        default: 'localhost'
+      },
+      {
+        name: 'appAdminUsername',
+        message: 'What MarkLogic admin user do you want to deploy with?',
+        default: 'admin'
+      },
+      {
+        name: 'appAdminPassword',
+        message: 'What is the MarkLogic admin user password? (Or keep blank and modify in gradle.properties afterwards)',
+        default: ''
+      },
+      {
         name: 'appRestPort',
-        message: 'What port do you want the MarkLogic REST API server to use?',
+        message: 'What port do you want the MarkLogic application REST API server to use?',
         default: '8003'
       },
       {
@@ -75,8 +90,8 @@ gulp.task('default', function (done) {
     var isTemplateable = function(file) {
       var rel = file.relative;
       var result = 
-        rel.indexOf('src\\main\\webapp\\fonts') == -1 && 
-        rel.indexOf('src/main/webapp/fonts') == -1 &&
+        rel.indexOf('fonts') == -1 && 
+        rel.indexOf('images') == -1 &&
         rel.indexOf('gradle-wrapper') == -1;
       return result;
     };
