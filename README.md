@@ -2,6 +2,7 @@
 
 > Generator for Angular/Spring Boot/MarkLogic apps
 
+This is similar to <a href="https://github.com/marklogic/slush-marklogic-node">slush-marklogic-node</a> (and the creators of that project did all the hard work, making it easy to create this project), but it's intended for MarkLogic users that prefer a Java middle tier (Spring Boot) instead of NodeJS. The Angular UI is largely the same (along with using bower/gulp/npm), and Gradle is the build tool instead of Roxy, though you can always use Maven to invoke Gradle too. 
 
 ## Getting Started
 
