@@ -1,0 +1,21 @@
+<div class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">Upload files</div>
+      <div class="panel-body">
+        <p>
+          You can ingest new content into MarkLogic via <a target="_blank" 
+          href="https://docs.marklogic.com/guide/mlcp">Content Pump</a> 
+          by dropping/selecting a file below and then optionally filling out any 
+          of the <a target="_blank" href="https://docs.marklogic.com/guide/mlcp/import#id_23879">import options</a> below the file selector.
+        </p>
+        <ml-upload multiple="true" upload-file-list="enrichCtrl.data.files" mlcp="ctrl.mlcp">
+          <p><strong>Drop files here or click to select files.</strong></p>
+          <em>(Files will be uploaded automatically)</em> 
+        </ml-upload>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3"></div>
+</div>

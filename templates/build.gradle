@@ -21,11 +21,14 @@ plugins {
 
 apply plugin: 'spring-boot'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 repositories {
   jcenter()
+  
+  // For mlcp-util
+  maven {url "https://dl.bintray.com/rjrudin/maven/"}
   
   // Needed for mlcp and its Hadoop dependencies
   maven {url "http://developer.marklogic.com/maven2/"}
@@ -44,6 +47,17 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	compile("org.springframework.boot:spring-boot-starter-web")
 
+  // Needed for the Upload feature using mlcp
+  compile "com.marklogic:mlcp-util:0.1.2"
+  
+  // Needed for parsing multipart HTTP requests (uploading files)
+  runtime "commons-fileupload:commons-fileupload:1.3.1"
+
   mlcp "com.marklogic:mlcp-Hadoop2:1.3-2"
   mlcp "com.marklogic:marklogic-mapreduce2:2.1.3"
+}
+
+// Tell Spring Boot, when run by Gradle, to watch the resources directory
+bootRun {
+  addResources = true
 }

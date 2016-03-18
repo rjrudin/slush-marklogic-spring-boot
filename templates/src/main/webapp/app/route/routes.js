@@ -99,6 +99,17 @@
         templateUrl: 'app/login/login-full.html',
         controller: 'LoginFullCtrl',
         controllerAs: 'ctrl'
+      })
+      .state('root.upload', {
+        url: '/upload',
+        templateUrl: 'app/upload/upload.html',
+        controller: 'uploaderCtrl',
+        controllerAs: 'ctrl',
+        resolve: {
+          stuff: function() {
+            return null;
+          }
+        }
       });
   }
 }());

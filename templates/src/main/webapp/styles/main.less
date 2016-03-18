@@ -276,3 +276,95 @@ form[name=profileForm] {
   font-family: monospace;
   font-size: 1.1em;
 }
+
+.ml-upload {
+
+  margin-top: 20px;
+
+  .ml-dropzone {
+    width: 100%;
+    border: dashed 1px;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+    background: #F9F9F9;
+    min-height: 100px;
+
+    .notes {
+      padding: 20px 15px;
+    }
+
+    &.hover { background: #9CF; border-color: #369; }
+
+    .ml-upload-file-list {
+      display: block;
+      width: 100%;
+      text-align: left;
+
+
+      .ml-upload-file {
+        display: inline-block;
+        background-color: #FFF;
+        border-radius: 8px;
+        border: solid 1px #333;
+        box-shadow: 2px 2px 1px #999;
+        padding: 10px;
+        margin: 5px;
+        position: relative;
+        height: 90px;
+        max-width: 95%;
+        overflow: hidden;
+
+        .ml-upload-file-name {
+          display: block;
+        }
+
+        .ml-upload-file-progress {
+          display: block;
+          position: absolute;
+          bottom: 5px;
+          left: 5%;
+          font-size: 0.75em;
+          text-align: center;
+          padding: 0;
+          width: 90%;
+          line-height: 1.75;
+          border-radius: 6px;
+          color: #333;
+          background-color: #999;
+          overflow: hidden;
+
+          .ml-upload-progress-bar {
+            background-color: #9CF;
+            height: 100%;
+            width: 1%;
+            display: block;
+          }
+
+          .ml-upload-progress-value {
+            position: absolute;
+            display: block;
+            left: 0;
+            width: 100%;
+            text-align: center;
+          }
+        }
+
+        &.ml-upload-done {
+          border-color: green;
+          background-color: lightgreen;
+
+          .ml-upload-file-progress .ml-upload-progress-bar { background-color: green; }
+        }
+
+        &.ml-upload-error {
+          border-color: red;
+          background-color: pink;
+
+          .ml-upload-file-progress .ml-upload-progress-bar { background-color: red; }
+        }
+
+      }
+    }
+  }
+}
