@@ -107,15 +107,15 @@ gulp.task('default', function (done) {
       interpolate: /<%=([\s\S]+?)%>/g
     };
 
-    // Need to pick up e.g. .bowerrc
-    var srcOptions = {
-      dot: true
-    };
-
     inquirer.prompt(prompts,
         function (answers) {
             answers.appNameSlug = _.slugify(answers.appName);
-            gulp.src(__dirname + '/templates/**', srcOptions)
+            gulp.src([
+              __dirname + '/templates/**', 
+              __dirname + '/templates/.bowerrc',
+              __dirname + '/templates/.editorconfig',
+              __dirname + '/templates/.gitignore'
+            ])
                 .pipe(gulpif(isTemplateable, template(answers, templateOptions)))
                 .pipe(rename(function (file) {
                     if (file.basename[0] === '_') {

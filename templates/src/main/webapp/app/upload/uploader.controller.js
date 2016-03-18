@@ -9,8 +9,7 @@
   function UploaderCtrl() {
   	var ctrl = this;
   	ctrl.mlcp = {
-      //output_collections: 'uploaded',
-      //output_permissions: 'cp-analyst,read,cp-analyst,update'
+      output_permissions: 'rest-reader,read,rest-writer,update'
   	};
   }
 
