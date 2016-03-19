@@ -49,22 +49,27 @@ And then import the project and run "org.example.App".
 This is a 3 tier architecture - Angular, Spring Boot, and MarkLogic - and thus, during development, there are 3 things you'll want to update and test, ideally without having to run a build task manually. Here's the best way to do that, IMO:
 
 1. In one terminal window, run "gulp watch" to process changes under src/main/webapp.
-2. In another terminal window, run "gradle -i mlWatch" to process changes to MarkLogic files under src/main/ml-modules.
-3. And then in Eclipse, run Spring Boot, where you have the advantage of setting up debugger breakpoints, clicking on class names in stacktraces, and all the other benefits you get from running a Java program from within an IDE.
+2. In another terminal window, run "gradle bootRun". As of version 0.2.x, this will not only run Spring Boot, but a component in the webapp will automatically load new/modified MarkLogic modules, just like "gradle mlWatch". 
 
-There's one annoying part that may have a solution that I haven't found - Spring Boot will kindly restart itself when you change Java code, which is helpful. But when "gulp watch" copies modified files to src/main/resources/static or templates, Eclipse won't see the changed files until you refresh the project. Then Eclipse will see the changed files, and Spring Boot will load up the new JS/CSS/HTML/etc. 
+According to the Boot docs, you should be able to change Java code, and Boot will reload if you have Boot's devtools library on the classpath. I have not had good luck with that yet. But changing Java code is infrequent, and so far, it's not a big deal to just re-run this task after changing Java code. 
 
+I have had luck with Boot restarting when running Boot in Eclipse, but it restarts more often than I want it to - I haven't looked into trying to configure when it should restart and when it should not.
+
+For now, I'd stick with "gradle bootRun" from the command line. 
 
 ## Why Spring Boot?
 
-1. Spring Boot is one of the fastest, easiest ways to get a webapp up and running with a Java middle tier
-2. Spring Boot supports packaging up the entire application (gradle assemble) as a single executable jar for easy deployment
+1. Most importantly, because you want a Java middle tier. If you don't want a Java middle tier, don't use this generator!
+2. Spring Boot is one of the fastest, easiest ways to get a webapp up and running with a Java middle tier.
+3. Spring Boot supports packaging up the entire application as a single executable jar for easy deployment.
+4. Spring Boot provides numerous features that may be useful for your web application.
+5. Having a Java middle tier makes it easy to reuse MarkLogic libraries like mlcp and corb2.
 
 ## Integration points with Spring Boot
 
-1. Spring Boot uses Spring Security for managing authentication; the generated project by default uses a form login for authentication and passes the credentials through to MarkLogic for verification
-2. Requests from Angular to the MarkLogic REST API are proxied via a Spring MVC controller
-3. The Gulp build file is a minimal approach for deploying everything to the src/main/resources/templates and src/main/resources/static directories - where Spring Boot expects to find static content
+1. Spring Boot uses Spring Security for managing authentication; the generated project by default uses a form login for authentication and passes the credentials through to MarkLogic for verification.
+2. Requests from Angular to the MarkLogic REST API are proxied via a Spring MVC controller.
+3. The Gulp build file is a minimal approach for deploying everything to the src/main/resources/templates and src/main/resources/static directories - where Spring Boot expects to find static content.
 
 ## Getting To Know Slush
 
