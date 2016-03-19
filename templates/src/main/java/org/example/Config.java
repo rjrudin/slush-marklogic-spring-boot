@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import com.marklogic.spring.http.RestConfig;
+import com.marklogic.spring.http.SimpleRestConfig;
 import com.marklogic.spring.http.proxy.HttpProxy;
 import com.marklogic.spring.security.authentication.MarkLogicAuthenticationManager;
 import com.marklogic.spring.security.context.SpringSecurityCredentialsProvider;
@@ -27,14 +28,14 @@ public class Config extends WebSecurityConfigurerAdapter {
      */
     @Bean
     public RestConfig restConfig() {
-        return new RestConfig();
+        return new SimpleRestConfig();
     }
 
     @Bean
     public CredentialsProvider credentialsProvider() {
         return new SpringSecurityCredentialsProvider();
     }
-    
+
     /**
      * @return an HttpProxy that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
      *         Spring Security for credentials - this relies on Spring Security not erasing the user's credentials so
