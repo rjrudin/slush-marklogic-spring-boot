@@ -80,6 +80,11 @@ gulp.task('default', function (done) {
         default: '8003'
       },
       {
+        name: 'appTestRestPort',
+        message: '(Optional) What port do you want a MarkLogic REST API server for testing to use? (zero means no test server)',
+        default: '0'
+      },
+      {
         name: 'appBootPort',
         message: 'What port do you want the Spring Boot server to use?',
         default: '8080'
@@ -110,12 +115,25 @@ gulp.task('default', function (done) {
     inquirer.prompt(prompts,
         function (answers) {
             answers.appNameSlug = _.slugify(answers.appName);
-            gulp.src([
+
+            var srcPaths = [
               __dirname + '/templates/**', 
               __dirname + '/templates/.bowerrc',
               __dirname + '/templates/.editorconfig',
-              __dirname + '/templates/.gitignore'
-            ])
+              __dirname + '/templates/.gitignore',
+              '!' + __dirname + '/templates/.gradle',
+              '!' + __dirname + '/templates/bin',
+              '!' + __dirname + '/templates/bin/**',
+              '!' + __dirname + '/templates/build',
+              '!' + __dirname + '/templates/build/**'
+            ];
+
+            if (answers.appTestRestPort == 0) {
+              srcPaths.push('!' + __dirname + '/templates/src/test');
+              srcPaths.push('!' + __dirname + '/templates/src/test/**');
+            }
+
+            gulp.src(srcPaths)
                 .pipe(gulpif(isTemplateable, template(answers, templateOptions)))
                 .pipe(rename(function (file) {
                     if (file.basename[0] === '_') {
