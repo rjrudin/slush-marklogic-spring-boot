@@ -2,7 +2,12 @@ node_modules
 temp
 *.log
 .idea
-
+.gradle
+bin
+build
+.settings
+.classpath
+.project
 
 # don't ignore .npmignore files
 !.npmignore
