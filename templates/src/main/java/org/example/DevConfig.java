@@ -34,11 +34,16 @@ public class DevConfig {
     protected String mlRestAdminPassword;
 
     @Bean
-    public DatabaseClientManager contentDatabaseClientManager() {
+    public DatabaseClientConfig contentDatabaseClientConfig() {
         DatabaseClientConfig config = new DatabaseClientConfig(mlHost, mlRestPort, mlRestAdminUsername,
                 mlRestAdminPassword);
         config.setDatabase(mlAppName + "-content");
-        return new DatabaseClientManager(config);
+        return config;
+    }
+
+    @Bean
+    public DatabaseClientManager contentDatabaseClientManager() {
+        return new DatabaseClientManager(contentDatabaseClientConfig());
     }
 
     @Bean

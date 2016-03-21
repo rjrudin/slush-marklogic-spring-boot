@@ -143,7 +143,7 @@ gulp.task('default', function (done) {
                 .pipe(gulpif(isExecutable, chmod(755)))
                 .pipe(conflict('./'))
                 .pipe(gulp.dest('./'))
-                //.pipe(install())
+                .pipe(install())
                 .on('end', function () {
                     done();
                 });

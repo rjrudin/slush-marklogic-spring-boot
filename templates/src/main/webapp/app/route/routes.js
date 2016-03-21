@@ -104,12 +104,13 @@
         url: '/upload',
         templateUrl: 'app/upload/upload.html',
         controller: 'uploaderCtrl',
-        controllerAs: 'ctrl',
-        resolve: {
-          stuff: function() {
-            return null;
-          }
-        }
+        controllerAs: 'ctrl'
+      })
+      .state('root.migrate', {
+        url: '/migrate',
+        templateUrl: 'app/migrate/migrate.html',
+        controller: 'MigratorCtrl',
+        controllerAs: 'ctrl'
       });
   }
 }());

@@ -1,0 +1,48 @@
+<div class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">Migrate from a SQL database</div>
+      <div class="panel-body">
+        <div class="alert alert-success" ng-if="ctrl.receipt">{{ctrl.receipt}}</div>
+        <p>Use the form below to specify a JDBC connection for the SQL database you wish to copy data from. Please
+          ensure that the JDBC driver you need is on the classpath - see build.gradle for examples.</p>
+        <form method="post">
+          <h4>JDBC Details</h4>
+          <div class="form-group">
+            <label for="jdbcDriver">Driver class name</label> 
+            <input id="jdbcDriver" type="text" class="form-control" ng-model="ctrl.inputs.jdbcDriver" />
+          </div>
+          <div class="form-group">
+            <label for="jdbcUrl">Database URL</label> 
+            <input id="jdbcUrl" type="text" class="form-control" ng-model="ctrl.inputs.jdbcUrl" />
+          </div>
+          <div class="form-group">
+            <label for="jdbcUsername">Username</label> 
+            <input id="jdbcUrl" type="text" class="form-control" ng-model="ctrl.inputs.jdbcUsername" />
+          </div>
+          <div class="form-group">
+            <label for="jdbcPassword">Password</label> 
+            <input id="jdbcPassword" type="password" class="form-control" ng-model="ctrl.inputs.jdbcPassword" />
+          </div>
+          <h4>SQL Query</h4>
+          <p>You can join tables together to produce a single document containing 1:many relationships. You can use
+            column labels to specify a nested XML structure in the document. For example, in a 1:many between "persons"
+            and "addresses", you can do 'SELECT persons.*, address.street as "address/street", address.city as
+            "address/city", etc', which will result in each address being added to the person document as an address
+            element with street and city child elements.</p>
+          <div class="form-group">
+            <label for="sql">Query</label>
+            <textarea id="sql" rows="5" cols="60" class="form-control" ng-model="ctrl.inputs.sql"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="rootLocalName">XML Root Element</label> 
+            <input id="rootLocalName" type="text" class="form-control" ng-model="ctrl.inputs.rootLocalName" />
+          </div>
+          <button class="btn btn-primary" ng-click="ctrl.submit()">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3"></div>
+</div>
