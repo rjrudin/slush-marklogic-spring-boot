@@ -13,6 +13,12 @@
     <term-option>punctuation-insensitive</term-option>
     <term-option>stemmed</term-option>
   </term>
+  <constraint name="collection">
+    <collection prefix=""/>
+  </constraint>
+  <default-suggestion-source>
+    <word-lexicon collation="http://marklogic.com/collation/"></word-lexicon>
+  </default-suggestion-source>
   <grammar>
     <quotation>"</quotation>
     <implicit>
@@ -65,5 +71,4 @@
       </transform-results>
     </state>
   </operator>
-
 </options>
