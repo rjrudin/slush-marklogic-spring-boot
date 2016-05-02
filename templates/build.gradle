@@ -3,7 +3,8 @@ buildscript {
   Properties props = new Properties()
   props.load(new FileInputStream("src/main/resources/application.properties"))
   props.each { prop ->
-    if (prop.key.startsWith("ml")) {
+    // Don't set the property if it's already been set, e.g. via -P on the command line
+    if (prop.key.startsWith("ml") && !project.hasProperty(prop.key)) {
       project.ext.set(prop.key, prop.value)
     }
   }
