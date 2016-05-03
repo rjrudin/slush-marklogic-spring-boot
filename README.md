@@ -4,6 +4,18 @@
 
 This is similar to <a href="https://github.com/marklogic/slush-marklogic-node">slush-marklogic-node</a> (and the creators of that project did all the hard work, making it easy to create this project), but it's intended for MarkLogic users that prefer a Java middle tier (Spring Boot) instead of NodeJS. The Angular UI is largely the same (along with using bower/gulp/npm), and Gradle is the build tool instead of Roxy, though you can always use Maven to invoke Gradle too. 
 
+## Prerequisites
+
+To install and use slush-marklogic-spring-boot, you need a few things installed locally first (unless otherwise noted, install the latest version of each):
+
+1. A [Java Development Kit (JDK) 1.7+ or 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (needed to compile a small amount of Java code in the Spring Boot app, as well as run the Spring Boot app)
+1. [Node 4.x+](https://nodejs.org/en/download/)
+1. [Slush](https://www.npmjs.com/package/slush)
+1. [Bower](https://www.npmjs.com/package/bower)
+1. [Gulp](https://www.npmjs.com/package/gulp)
+1. [Git](https://git-scm.com/downloads) (required by Bower)
+1. (Optional) [Gradle](http://gradle.org/gradle-download/). If you have Gradle already, great - use it. If you don't, you can use the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) that's included in the generated project. Just run e.g. "./gradlew" instead of "./gradle".
+
 ## Getting Started
 
 Install `slush-marklogic-spring-boot` globally:
