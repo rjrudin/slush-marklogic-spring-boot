@@ -50,7 +50,7 @@ dependencies {
   compile "com.marklogic:marklogic-spring-web:0.1.2"
 
   // Needed for loading modules into MarkLogic
-  compile "com.marklogic:ml-javaclient-util:2.7.1"
+  compile "com.marklogic:ml-javaclient-util:2.9.0-RC1"
 
   // Needed for the Upload feature using mlcp
   compile "com.marklogic:mlcp-util:0.2.0"
