@@ -8,7 +8,7 @@ buildscript {
       project.ext.set(prop.key, prop.value)
     }
   }
-  
+
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
 	}
@@ -17,7 +17,7 @@ buildscript {
 plugins {
 	id "java"
 	id "eclipse"
-  id "com.marklogic.ml-gradle" version "2.0"
+  id "com.marklogic.ml-gradle" version "2.2.0-RC1"
 }
 
 apply plugin: 'spring-boot'
@@ -27,10 +27,7 @@ targetCompatibility = 1.7
 
 repositories {
   jcenter()
-  
-  // For mlcp-util
-  maven {url "https://dl.bintray.com/rjrudin/maven/"}
-  
+
   // Needed for mlcp and its Hadoop dependencies
   maven {url "http://developer.marklogic.com/maven2/"}
   maven {url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
@@ -39,16 +36,16 @@ repositories {
 dependencies {
   // Main Boot library for running a webapp
   compile("org.springframework.boot:spring-boot-starter-web")
-  
+
   // Adds Spring Security integration
   compile("org.springframework.boot:spring-boot-starter-security")
-  
+
   // Adds Thymeleaf integration; Thymeleaf is used for the main HTML templates
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-  
+
   // Optional Boot library - see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html
   compile("org.springframework.boot:spring-boot-devtools")
-  
+
   // Provides integration points between Boot and MarkLogic
   compile "com.marklogic:marklogic-spring-web:0.1.2"
 
@@ -56,15 +53,15 @@ dependencies {
   compile "com.marklogic:ml-javaclient-util:2.7.1"
 
   // Needed for the Upload feature using mlcp
-  compile "com.marklogic:mlcp-util:0.1.2"
+  compile "com.marklogic:mlcp-util:0.2.0"
   runtime "commons-fileupload:commons-fileupload:1.3.1"
-  
+
   // Needed for the SQL migration tool
   compile "com.marklogic:marklogic-spring-batch:0.1.0"
   // Samples of including JDBC drivers - uncomment or add your own as needed
   runtime "mysql:mysql-connector-java:5.1.6"
   //runtime "postgresql:postgresql:9.2-1002.jdbc4"
-  
+
   // Needed for writing JUnit tests with ml-junit
   testCompile "com.marklogic:ml-junit:2.5"
 }
