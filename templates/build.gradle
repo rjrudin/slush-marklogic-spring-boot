@@ -70,3 +70,9 @@ dependencies {
 bootRun {
   addResources = true
 }
+
+// See http://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
+springBoot {
+	executable = true
+	mainClass = "org.example.App"
+}
