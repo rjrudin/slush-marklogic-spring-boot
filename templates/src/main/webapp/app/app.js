@@ -17,7 +17,8 @@
     'app.uploader',
     'app.user',
     'ui.bootstrap',
-    'ui.router'
+    'ui.router',
+    'ml.esri-maps'
   ]);
 
 }());
