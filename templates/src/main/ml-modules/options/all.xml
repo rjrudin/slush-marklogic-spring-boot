@@ -71,4 +71,19 @@
       </transform-results>
     </state>
   </operator>
+
+	<constraint name="geo-point">
+		<custom facet="true">
+			<parse apply="parse-structured" ns="http://marklogic.com/appservices/viz/geo" at="/ext/constraint/geo.xqy" />
+			<start-facet apply="start" ns="http://marklogic.com/appservices/viz/geo" at="/ext/constraint/geo.xqy" />
+			<finish-facet apply="finish" ns="http://marklogic.com/appservices/viz/geo" at="/ext/constraint/geo.xqy" />
+		</custom>
+		<annotation>
+			<geo-elem>
+				<heatmap n="90" e="180" s="-90" w="-180" latdivs="6" londivs="6" />
+				<element ns="" name="geo-point" />
+			</geo-elem>
+		</annotation>
+	</constraint>
+	
 </options>
