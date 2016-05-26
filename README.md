@@ -83,6 +83,19 @@ For now, I'd stick with "gradle bootRun" from the command line.
 2. Requests from Angular to the MarkLogic REST API are proxied via a Spring MVC controller.
 3. The Gulp build file is a minimal approach for deploying everything to the src/main/resources/templates and src/main/resources/static directories - where Spring Boot expects to find static content.
 
+## Notes about Gradle
+
+1. Most ml-gradle properties are in src/main/resources/application.properties to avoid duplication in gradle.properties. 
+That's the file that Spring Boot reads from for application properties.
+2. For support with environment-sensitive properties, look into the commented-out Gradle properties plugin in bild.gradle.
+
+## How do I remove the map?
+
+As of version 0.4.0, an Esri-based map is included in the UI, along with some code in the modules database to support it.
+If you don't want this map, the easiest thing to do is comment it out in search.html and then comment out the
+related parts in search.controller.js. Also comment out the Esri JS/CSS files in index.html. That will prevent the app
+from doing any unnecessary work to try to power a map that you don't want. 
+
 ## Getting To Know Slush
 
 Slush is a tool that uses Gulp for project scaffolding.
