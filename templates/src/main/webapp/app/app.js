@@ -12,7 +12,6 @@
     'app.error',
     'app.login',
     'app.root',
-    'app.migrator',
     'app.search',
     'app.uploader',
     'app.user',
