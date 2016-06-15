@@ -36,6 +36,13 @@ repositories {
     maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
 }
 
+configurations {
+
+    // Exclude log4j so that only logback is used for logging
+    compile.exclude module:'log4j'
+    compile.exclude module:'slf4j-log4j12'
+}
+
 dependencies {
     // Main Boot library for running a webapp
     compile("org.springframework.boot:spring-boot-starter-web")
