@@ -37,10 +37,12 @@ repositories {
 }
 
 configurations {
-
     // Exclude log4j so that only logback is used for logging
     compile.exclude module:'log4j'
     compile.exclude module:'slf4j-log4j12'
+
+    // Allows for downloading mlcp dependencies instead of downloading all of mlcp and setting it up yourself
+    mlcp
 }
 
 dependencies {
@@ -68,6 +70,10 @@ dependencies {
 
     // Needed for writing JUnit tests with ml-junit
     testCompile "com.marklogic:ml-junit:2.6.0"
+
+    // The mlcp directory contains a log4j config file, which mlcp needs for logging
+    mlcp "com.marklogic:mlcp:8.0-5"
+    mlcp files("mlcp")
 }
 
 // Tell Spring Boot, when run by Gradle, to watch the resources directory
@@ -79,4 +85,35 @@ bootRun {
 springBoot {
     executable = true
     mainClass = "org.example.App"
+}
+
+/**
+ * Example mlcp import task. MlcpTask defines a number of mlcp options as task properties.
+ * You can always pass in mlcp args via the args array.
+ * Before running this, make sure the input directory exists.
+ *
+ * Also, Windows users will see mlcp report an IOException about winutils.exe missing, but
+ * that can be safely ignored.
+ */
+task importData(type: ImportTask) {
+    input_file_path = "data"
+    output_uri_replace = "(.)+/data,''"
+    output_collections = "data"
+    args = []
+}
+
+/**
+ * Example of further simplifying mlcp import tasks by defining some properties.
+ * MlcpTask extends Gradle's JavaExec task, so all of JavaExec's properties are available.
+ */
+class ImportTask extends com.marklogic.gradle.task.MlcpTask {
+    @TaskAction
+    @Override
+    public void exec() {
+        setClasspath(project.configurations.mlcp)
+        setCommand("IMPORT")
+        setPort(project.mlAppConfig.restPort)
+        setDatabase(project.mlAppConfig.contentDatabaseName)
+        super.exec()
+    }
 }
