@@ -41,6 +41,8 @@ configurations {
     compile.exclude module:'log4j'
     compile.exclude module:'slf4j-log4j12'
 
+    corb
+
     // Allows for downloading mlcp dependencies instead of downloading all of mlcp and setting it up yourself
     mlcp
 }
@@ -71,6 +73,9 @@ dependencies {
     // Needed for writing JUnit tests with ml-junit
     testCompile "com.marklogic:ml-junit:2.6.0"
 
+    // For Gradle tasks that run corb jobs
+    corb "com.marklogic:marklogic-corb:2.3.1"
+
     // The mlcp directory contains a log4j config file, which mlcp needs for logging
     mlcp "com.marklogic:mlcp:8.0-5"
     mlcp files("mlcp")
@@ -94,6 +99,8 @@ springBoot {
  *
  * Also, Windows users will see mlcp report an IOException about winutils.exe missing, but
  * that can be safely ignored.
+ *
+ * For more examples, see https://github.com/rjrudin/ml-gradle/tree/master/examples/mlcp-project .
  */
 task importData(type: ImportTask) {
     input_file_path = "data"
@@ -116,4 +123,16 @@ class ImportTask extends com.marklogic.gradle.task.MlcpTask {
         setDatabase(project.mlAppConfig.contentDatabaseName)
         super.exec()
     }
+}
+
+/**
+ * Example Gradle task that runs a corb job. Depends on mlLoadModules so that the modules that it
+ * depends on are guaranteed to be present and up-to-date. For more examples, see
+ * https://github.com/rjrudin/ml-gradle/tree/master/examples/corb2-project .
+ */
+task corbRun(type: com.marklogic.gradle.task.CorbTask, dependsOn: ['mlLoadModules']) {
+    xccConnectionUri = "xcc://${mlUsername}:${mlPassword}@${mlHost}:${mlRestPort}"
+    moduleRoot = "/ext/corb/"
+    urisModule = "uris.xqy"
+    processModule = "transform.xqy"
 }
