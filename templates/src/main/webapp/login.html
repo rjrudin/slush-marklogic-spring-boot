@@ -8,6 +8,8 @@
 	<meta name="viewport" content="width=device-width"/>
 	<!--/* Hacky meta tag so that the Angular webapp can recognize when the user's session has expired */-->
 	<meta name="springBootLoginForm" content=""/>
+	<!--/* Refresh to lessen the chance of the Spring Boot CSRF token expiring */-->
+	<meta http-equiv="refresh" content="60;"/>
 	<link rel="shortcut icon" th:href="@{images/favicon.ico}"/>
 	<!-- bower:css -->
 	<!-- endbower -->
