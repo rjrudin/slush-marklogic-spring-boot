@@ -90,6 +90,7 @@ bootRun {
 springBoot {
     executable = true
     mainClass = "org.example.App"
+    excludeDevtools = true
 }
 
 /**
