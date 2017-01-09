@@ -58,14 +58,16 @@ public class Config extends WebSecurityConfigurerAdapter {
 
     /**
      * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
-     * manager that Spring Boot uses by default. We also have to set eraseCredentials to false so that the password is
-     * kept in the Authentication object, which allows HttpProxy to use it when authenticating against MarkLogic.
+     * manager that Spring Boot uses by default. Based on a change from Spring 1.3.5 to 1.4.3, setting eraseCredentials
+     * to false here no longer has an impact, and I haven't figured out where/when to set that instead. However, version
+     * 1.1.0 of marklogic-spring-web will now use an Authentication implementation that does nothing when eraseCredentials
+     * is called, thus avoiding the problem of the user's password being removed and not available for calls to ML.
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         super.configure(auth);
         auth.parentAuthenticationManager(markLogicAuthenticationManager());
-        auth.eraseCredentials(false);
+        //auth.eraseCredentials(false);
     }
 
     /**
