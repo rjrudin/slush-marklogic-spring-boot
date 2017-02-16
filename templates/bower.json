@@ -17,7 +17,7 @@
     "ml-search-ng": "~0.2.0",
     "ml-utils": "withjam/ml-utils",
     "ng-json-explorer": "8c2a0f9104",
-    "vkbeautify-wrapper": "*",
+    "vkbeautify-wrapper": "https://github.com/vkiryukhin/vkBeautify.git",
 		"ml-esir-maps-ng": "ml-esri-maps-ng#^0.0.1"
   },
   "overrides": {
