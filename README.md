@@ -14,7 +14,7 @@ To install and use slush-marklogic-spring-boot, you need a few things installed 
 1. [Bower](https://www.npmjs.com/package/bower)
 1. [Gulp](https://www.npmjs.com/package/gulp)
 1. [Git](https://git-scm.com/downloads) (required by Bower)
-1. (Optional) [Gradle](http://gradle.org/gradle-download/). If you have Gradle already, great - use it. If you don't, you can use the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) that's included in the generated project. Just run e.g. "./gradlew" instead of "./gradle".
+1. (Optional) [Gradle](http://gradle.org/gradle-download/). If you have Gradle already, great - use it - but be sure to only use Gradle 2! Gradle 3 and Spring Boot do not yet get along well. If you don't have Gradle installed already, you can use the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) that's included in the generated project. Just run e.g. "./gradlew" instead of "./gradle".
 
 ## Getting Started
 
