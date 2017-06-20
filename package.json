@@ -1,7 +1,7 @@
 {
   "name": "slush-marklogic-spring-boot",
   "description": "Generator for Angular/Spring Boot/MarkLogic apps",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "homepage": "https://github.com/rjrudin/slush-marklogic-spring-boot",
   "author": {
     "name": "Rob Rudin",
@@ -24,17 +24,17 @@
     "test": "echo \"No tests\""
   },
   "dependencies": {
-    "gulp": "^3.6.2",
+    "gulp": "^3.9.1",
     "gulp-chmod": "^1.3.0",
-    "gulp-conflict": "^0.1.1",
-    "gulp-if": "2.0.0",
-    "gulp-install": "^0.1.4",
-    "gulp-rename": "^1.2.0",
-    "gulp-template": "^0.1.1",
+    "gulp-conflict": "^0.1.2",
+    "gulp-if": "^2.0.0",
+    "gulp-install": "^0.1.8",
+    "gulp-rename": "^1.2.2",
+    "gulp-template": "^0.1.2",
     "iniparser": "^1.0.5",
-    "inquirer": "^0.8.0",
-    "slush": ">=1.0.0",
-    "underscore.string": "^2.3.3"
+    "inquirer": "^0.8.5",
+    "slush": "^1.1.1",
+    "underscore.string": "^2.4.0"
   },
   "keywords": [
     "slushgenerator",
