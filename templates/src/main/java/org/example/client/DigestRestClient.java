@@ -2,17 +2,13 @@ package org.example.client;
 
 import com.marklogic.spring.http.proxy.DefaultRequestCallback;
 import com.marklogic.spring.http.proxy.DefaultResponseExtractor;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.example.util.CredentialsUtil;
+import org.apache.directory.api.util.Strings;
 import org.example.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RequestCallback;
@@ -26,10 +22,11 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * Simple class to proxy requests to MarkLogic using Digest authentication.  Will reuse RestTemplate created in
- * in DigestAuthenticationManager {@link DigestAuthenticationManager}.
+ * Client class to proxy requests to MarkLogic using Digest authentication.
  *
- * Proxy methods derived from HttpProxy {@link com.marklogic.spring.http.proxy.HttpProxy} class.
+ * Will reuse RestTemplate created by DigestAuthenticationManager {@link DigestAuthenticationManager} for the user.
+ *
+ * Proxy methods were derived from HttpProxy {@link com.marklogic.spring.http.proxy.HttpProxy} class.
  */
 @Component
 public class DigestRestClient {
@@ -37,18 +34,12 @@ public class DigestRestClient {
 	private static final String RESTTEMPLATE_SESSION_KEY = "upstream.restemplate";
 
 	@Autowired
-	RestTemplateCache restTemplateCache;
+	private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
 
 	@Autowired
 	private URIUtil uriUtil;
 
 	public DigestRestClient() {
-	}
-
-	private CredentialsProvider provider(String userName, String password) {
-		CredentialsProvider provider = new BasicCredentialsProvider();
-		provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
-		return provider;
 	}
 
 	/**
@@ -70,8 +61,8 @@ public class DigestRestClient {
 	 */
 	public void proxy(HttpServletRequest httpRequest, HttpServletResponse httpResponse, String... headerNamesToCopy) {
 		proxy(httpRequest.getServletPath(), httpRequest, httpResponse,
-			new DefaultRequestCallback(httpRequest, headerNamesToCopy),
-			new DefaultResponseExtractor(httpResponse, headerNamesToCopy));
+				new DefaultRequestCallback(httpRequest, headerNamesToCopy),
+				new DefaultResponseExtractor(httpResponse, headerNamesToCopy));
 	}
 
 	/**
@@ -85,7 +76,7 @@ public class DigestRestClient {
 	public void proxy(String path, HttpServletRequest httpRequest, HttpServletResponse httpResponse,
 					  String... headerNamesToCopy) {
 		proxy(path, httpRequest, httpResponse, new DefaultRequestCallback(httpRequest, headerNamesToCopy),
-			new DefaultResponseExtractor(httpResponse, headerNamesToCopy));
+				new DefaultResponseExtractor(httpResponse, headerNamesToCopy));
 	}
 
 	/**
@@ -110,29 +101,34 @@ public class DigestRestClient {
 		return client.execute(uri, method, requestCallback, responseExtractor);
 	}
 
-	protected HttpMethod determineMethod(HttpServletRequest httpRequest) {
+	private HttpMethod determineMethod(HttpServletRequest httpRequest) {
 		return HttpMethod.valueOf(httpRequest.getMethod());
 	}
 
-	protected RestTemplate getUpstreamRestTemplate(HttpServletRequest httpRequest){
+	private RestTemplate getUpstreamRestTemplate(HttpServletRequest httpRequest){
 		// check first if user already have a template stored in session
 		RestTemplate template = (RestTemplate)httpRequest.getSession().getAttribute(RESTTEMPLATE_SESSION_KEY);
 		if (template==null){
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			if (auth!=null){
+			//get the auth token from context and use it to check the cache
+			RestTemplateCacheKey cacheKey = (RestTemplateCacheKey)SecurityContextHolder.getContext().getAuthentication();
+			if (cacheKey!=null){
 				try {
-					RestTemplateCacheKey cacheKey = CredentialsUtil.authTokenToCacheKey(auth);
-					// fetch the RestTemplate stored by DigestAuthenticationManager in the cache
-					// create if the template doesn't yet exist
-					template = restTemplateCache.fetchOrCreate(cacheKey);
-					// move the template from the cache to the session (removing the password in memory)
-					httpRequest.getSession().setAttribute(RESTTEMPLATE_SESSION_KEY, template);
-					restTemplateCache.remove(cacheKey);
+					if (!Strings.isEmpty(cacheKey.getPassword())){
+						// fetch the RestTemplate stored by DigestAuthenticationManager in the cache
+						// create if the template doesn't yet exist
+						template = restTemplateCache.fetchOrCreate(cacheKey);
+						// move the template from the cache to the session (removing the password in memory)
+						httpRequest.getSession().setAttribute(RESTTEMPLATE_SESSION_KEY, template);
+						restTemplateCache.remove(cacheKey);
+					}else{
+						//for further safety
+						restTemplateCache.remove(cacheKey.getUserName());
+					}
 				} catch (ExecutionException e) {
 					throw new RuntimeException("Unable to create RestTemplate object.", e);
 				}
 			}else{
-				return null;
+				throw new CredentialsExpiredException("Missing security context.");
 			}
 		}
 		return template;

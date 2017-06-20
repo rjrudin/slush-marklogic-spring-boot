@@ -1,6 +1,5 @@
 package org.example.client;
 
-import org.example.util.CredentialsUtil;
 import org.example.util.URIUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,11 +23,11 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class DigestAuthenticationManager implements AuthenticationProvider, AuthenticationManager {
 
-	@Autowired
-	private RestTemplateCache restTemplateCache;
+    @Autowired
+    private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
 
-	@Autowired
-	private URIUtil uriUtil;
+    @Autowired
+    private URIUtil uriUtil;
 
     private String pathToAuthenticateAgainst = "/ext/login-check.xqy";
 
@@ -42,16 +41,25 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+        return   UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)
+                || RestTemplateCacheKey.class.isAssignableFrom(authentication) ;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if (!(authentication instanceof UsernamePasswordAuthenticationToken)) {
+            throw new IllegalArgumentException(
+                    DigestAuthenticationManager.class.getName() + " only supports " + UsernamePasswordAuthenticationToken.class.getName()
+                            +".  Authentication object is of type "+ authentication.getClass().getName()+".");
+        }
+        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) authentication;
+        String username = token.getPrincipal().toString();
+        String password = token.getCredentials().toString();
 
-		RestTemplateCacheKey key = CredentialsUtil.authTokenToCacheKey(authentication);
-		try {
-			RestTemplate client = restTemplateCache.fetchOrCreate(key);
-			URI uri = uriUtil.buildUri(pathToAuthenticateAgainst, "");
+        RestTemplateCacheKey key = new RestTemplateCacheKey(username, password, token.getAuthorities());
+        try {
+            RestTemplate client = restTemplateCache.fetchOrCreate(key);
+            URI uri = uriUtil.buildUri(pathToAuthenticateAgainst, "");
             client.getForEntity(uri, String.class);
         } catch (HttpClientErrorException ex) {
             if (HttpStatus.NOT_FOUND.equals(ex.getStatusCode())) {
@@ -62,9 +70,10 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
                 throw new AuthenticationServiceException(ex.getMessage(), ex);
             }
         } catch (ExecutionException e) {
-			throw new AuthenticationServiceException(e.getMessage(), e);
-		}
-		return CredentialsUtil.clone(authentication);
+            throw new AuthenticationServiceException(e.getMessage(), e);
+        }
+
+        return key;
     }
 
     public void setPathToAuthenticateAgainst(String pathToAuthenticateAgainst) {

@@ -5,10 +5,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.example.client.DigestRestClient;
 import org.example.client.RestTemplateCache;
-import org.example.util.CredentialsUtil;
+import org.example.client.RestTemplateCacheKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public class AppController implements ErrorController {
     private DigestRestClient digestRestClient;
 
     @Autowired
-    private RestTemplateCache restTemplateCache;
+    private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
 
     /**
      * Assumes that the root URL should use a template named "index", which presumably will setup the Angular app.
@@ -87,20 +86,20 @@ public class AppController implements ErrorController {
      * The UI logs the user out via this endpoint.
      */
     @RequestMapping(value = "/api/user/logout", method = RequestMethod.GET)
-    @ResponseBody
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = null;
         if (context != null){
             auth = context.getAuthentication();
             if (auth!=null){
                 // invalidate rest template if it is still in cache
-                restTemplateCache.remove(CredentialsUtil.authTokenToCacheKey(auth));
+                restTemplateCache.remove((RestTemplateCacheKey)auth);
             }
         }
 
         // invoke Spring's logout handler
         new SecurityContextLogoutHandler().logout(request, response, auth);
+        return "login";
     }
 
     /**
@@ -173,8 +172,5 @@ public class AppController implements ErrorController {
         return "/error";
     }
 
-    public void setHttpProxy(DigestRestClient digestRestClient) {
-        this.digestRestClient = digestRestClient;
-    }
 
 }

@@ -2,9 +2,7 @@ package org.example;
 
 import com.github.ziplet.filter.compression.CompressingFilter;
 import org.apache.http.client.CredentialsProvider;
-import org.example.client.DigestAuthenticationManager;
-import org.example.client.DigestRestClient;
-import org.example.client.RestTemplateCache;
+import org.example.client.*;
 import org.example.util.URIUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,9 +41,10 @@ public class Config extends WebSecurityConfigurerAdapter{
     }
 
     /**
-     * @return an DigestRestClient that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
+     * A REST client that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
      *         Spring Security for credentials - this relies on Spring Security not erasing the user's credentials so
      *         that the username/password can be passed to MarkLogic on every request for authentication.
+     * @return
      */
     @Bean
     public DigestRestClient digestRestClient() {
@@ -63,12 +62,24 @@ public class Config extends WebSecurityConfigurerAdapter{
     }
 
     /**
-     * Configures and sets the expiration of the cache for Spring's RestTemplate
+     * Loads RestTemplate {@link org.springframework.web.client.RestTemplate} objects wired for Digest authentication.
+     *
      * @return
      */
     @Bean
-    public RestTemplateCache restTemplateCache() {
-        return new RestTemplateCache(10, TimeUnit.MINUTES);
+    public DigestRestTemplateLoader digestRestTemplateLoader() {
+        return new DigestRestTemplateLoader();
+    }
+
+    /**
+     * Configures and sets the expiration of the cache for Spring's RestTemplate.
+     * Also wires the object to use Digest authentication.
+     *
+     * @return
+     */
+    @Bean
+    public RestTemplateCache<RestTemplateCacheKey> restTemplateCache() {
+        return new RestTemplateCache<>(10, TimeUnit.MINUTES, digestRestTemplateLoader());
     }
 
     /**
@@ -91,10 +102,8 @@ public class Config extends WebSecurityConfigurerAdapter{
 
     /**
      * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
-     * manager that Spring Boot uses by default. Based on a change from Spring 1.3.5 to 1.4.3, setting eraseCredentials
-     * to false here no longer has an impact, and I haven't figured out where/when to set that instead. However, version
-     * 1.1.0 of marklogic-spring-web will now use an Authentication implementation that does nothing when eraseCredentials
-     * is called, thus avoiding the problem of the user's password being removed and not available for calls to ML.
+     * manager that Spring Boot uses by default. We also have to set eraseCredentials to false so that the password is
+     * kept in the Authentication object, which allows HttpProxy to use it when authenticating against MarkLogic.
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

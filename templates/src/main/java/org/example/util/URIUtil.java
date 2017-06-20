@@ -31,7 +31,7 @@ public class URIUtil {
 				queryString = decode(queryString);
 			}
 			return new URI(restConfig.getScheme(), null, restConfig.getHost(), restConfig.getRestPort(), path,
-				queryString, null);
+					queryString, null);
 		} catch (Exception ex) {
 			throw new RuntimeException("Unable to build URI, cause: " + ex.getMessage(), ex);
 		}
