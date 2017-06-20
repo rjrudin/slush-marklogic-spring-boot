@@ -79,6 +79,12 @@ dependencies {
     // The mlcp directory contains a log4j config file, which mlcp needs for logging
     mlcp "com.marklogic:mlcp:8.0-5"
     mlcp files("mlcp")
+
+    // For HTTP response compression
+    compile ("com.github.ziplet:ziplet:2.2.0"){
+        exclude group: 'javax.servlet', module: 'servlet-api'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
 }
 
 // Tell Spring Boot, when run by Gradle, to watch the resources directory
