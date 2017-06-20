@@ -1,6 +1,5 @@
 package org.example;
 
-import com.github.ziplet.filter.compression.CompressingFilter;
 import org.apache.http.client.CredentialsProvider;
 import org.example.client.*;
 import org.example.util.URIUtil;
@@ -15,8 +14,8 @@ import com.marklogic.spring.http.RestConfig;
 import com.marklogic.spring.http.SimpleRestConfig;
 import com.marklogic.spring.security.context.SpringSecurityCredentialsProvider;
 import com.marklogic.spring.security.web.util.matcher.CorsRequestMatcher;
+import org.springframework.security.core.Authentication;
 
-import javax.servlet.Filter;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -95,21 +94,21 @@ public class Config extends WebSecurityConfigurerAdapter{
      * Servlet Filter to compress large http responses.
      * @return
      */
-    @Bean
+   /* @Bean
     public Filter compressingFilter() {
         return new CompressingFilter();
     }
-
+*/
     /**
      * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
-     * manager that Spring Boot uses by default. We also have to set eraseCredentials to false so that the password is
-     * kept in the Authentication object, which allows HttpProxy to use it when authenticating against MarkLogic.
+     * manager that Spring Boot uses by default.  Configured to clear the credentials from the {@link Authentication}
+     * object after authenticating.
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         super.configure(auth);
         auth.parentAuthenticationManager(digestAuthenticationManager());
-        auth.eraseCredentials(false);
+        auth.eraseCredentials(true);
     }
 
     /**

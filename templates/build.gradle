@@ -13,13 +13,14 @@ buildscript {
 plugins {
 	id "java"
 	id "eclipse"
-	id "org.springframework.boot" version "1.4.3.RELEASE"
+	id "org.springframework.boot" version "1.5.4.RELEASE"
 	id "com.marklogic.ml-gradle" version "2.5.0"
 
 	// For managing environment-sensitive properties - see https://github.com/stevesaliman/gradle-properties-plugin
 	// id 'net.saliman.properties' version '1.4.5'
 }
 
+version = '1.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
@@ -29,6 +30,9 @@ repositories {
 	// Needed for mlcp and its Hadoop dependencies
 	maven { url "http://developer.marklogic.com/maven2/" }
 	maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
+	// Needed for spring-boot-gradle-plugin dependencies
+	maven { url "https://plugins.gradle.org/m2/" }
+	maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
 configurations {
@@ -40,20 +44,21 @@ configurations {
 
 	// Allows for downloading mlcp dependencies instead of downloading all of mlcp and setting it up yourself
 	mlcp
+
 }
 
 dependencies {
 	// Main Boot library for running a webapp
-	compile("org.springframework.boot:spring-boot-starter-web")
+	compile("org.springframework.boot:spring-boot-starter-web:1.5.4.RELEASE")
 
 	// Adds Spring Security integration
-	compile("org.springframework.boot:spring-boot-starter-security")
+	compile("org.springframework.boot:spring-boot-starter-security:1.5.4.RELEASE")
 
 	// Adds Thymeleaf integration; Thymeleaf is used for the main HTML templates
-	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf:1.5.4.RELEASE")
 
 	// Optional Boot library - see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html
-	compile("org.springframework.boot:spring-boot-devtools")
+	compile("org.springframework.boot:spring-boot-devtools:1.5.4.RELEASE")
 
 	// Provides integration points between Boot and MarkLogic
 	compile "com.marklogic:marklogic-spring-web:1.1.0"
@@ -76,11 +81,6 @@ dependencies {
 	mlcp "com.marklogic:mlcp:8.0.6"
 	mlcp files("mlcp")
 
-    // For HTTP response compression
-    compile ("com.github.ziplet:ziplet:2.2.0"){
-        exclude group: 'javax.servlet', module: 'servlet-api'
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
 }
 
 // Tell Spring Boot, when run by Gradle, to watch the resources directory
@@ -139,3 +139,4 @@ task corbRun(type: com.marklogic.gradle.task.CorbTask, dependsOn: ['mlLoadModule
 	urisModule = "uris.xqy"
 	processModule = "transform.xqy"
 }
+

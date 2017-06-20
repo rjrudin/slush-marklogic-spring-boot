@@ -3,6 +3,8 @@ package org.example.client;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.http.auth.Credentials;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -14,13 +16,13 @@ import java.util.concurrent.TimeUnit;
  *  Intended to be used by an AuthenticationManager (i.e DigestAuthenticationManager) to temporarily store RestTemplate
  *    objects wired by the given CacheLoader(i.e DigestRestTemplateLoader) with specific AuthCache and appropriate
  *    Scheme(i.e DigestScheme).
- *  This cache is needed since the reuse is required of the RestTemplate created during authentication on succeeding
- *    requests to MarkLogic.  Necessary since there's no access to the user session inside the
+ *  This cache is needed since reuse is required  on succeeding requests to MarkLogic of the RestTemplate that was
+ *    created during authentication.  Necessary since the user session attributes are not accessible inside the
  *    DigestAuthenticationManager.authenticate() method.
  *  Values are expected to be moved to the user's http session on the next request right after login.
  *    see: DigestRestClient.getUpstreamRestTemplate()
  */
-public class RestTemplateCache<K> {
+public class RestTemplateCache<K extends Credentials> {
 	private LoadingCache<K, RestTemplate> cache;
 
 	public RestTemplateCache(long duration, TimeUnit timeUnit, CacheLoader<K, RestTemplate> cacheLoader){
@@ -39,8 +41,7 @@ public class RestTemplateCache<K> {
 
 	public void remove(String username){
 		for (Map.Entry<K, RestTemplate> item: cache.asMap().entrySet()){
-			if (  item.getKey() instanceof RestTemplateCacheKey
-					&& ((RestTemplateCacheKey)item.getKey()).getUserName().equals(username)){
+			if ((item.getKey()).getUserPrincipal().getName().equals(username)){
 				cache.invalidate(item.getKey());
 			}
 		}
