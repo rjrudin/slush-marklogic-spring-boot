@@ -2,7 +2,6 @@ package org.example.client;
 
 import com.marklogic.spring.http.proxy.DefaultRequestCallback;
 import com.marklogic.spring.http.proxy.DefaultResponseExtractor;
-import org.apache.directory.api.util.Strings;
 import org.example.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -32,9 +32,6 @@ import java.util.concurrent.ExecutionException;
 public class DigestRestClient {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private static final String RESTTEMPLATE_SESSION_KEY = "upstream.restemplate";
-
-	@Autowired
-	private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
 
 	@Autowired
 	private URIUtil uriUtil;
@@ -107,30 +104,33 @@ public class DigestRestClient {
 
 	private RestTemplate getUpstreamRestTemplate(HttpServletRequest httpRequest){
 		// check first if user already have a template stored in session
-		RestTemplate template = (RestTemplate)httpRequest.getSession().getAttribute(RESTTEMPLATE_SESSION_KEY);
-		if (template==null){
-			//get the auth token from context and use it to check the cache
-			RestTemplateCacheKey cacheKey = (RestTemplateCacheKey)SecurityContextHolder.getContext().getAuthentication();
-			if (cacheKey!=null){
-				try {
-					if (!Strings.isEmpty(cacheKey.getPassword())){
-						// fetch the RestTemplate stored by DigestAuthenticationManager in the cache
-						// create if the template doesn't yet exist
-						template = restTemplateCache.fetchOrCreate(cacheKey);
-						// move the template from the cache to the session (removing the password in memory)
-						httpRequest.getSession().setAttribute(RESTTEMPLATE_SESSION_KEY, template);
-						restTemplateCache.remove(cacheKey);
+		HttpSession downstreamSession = httpRequest.getSession();
+
+		RestTemplate template = null;
+		if (downstreamSession!=null){
+			synchronized (downstreamSession){
+				template = (RestTemplate)downstreamSession.getAttribute(RESTTEMPLATE_SESSION_KEY);
+				if (template==null){
+					//get the upstream authenticated token from context
+					DigestRestClientSession upstreamSession =
+							(DigestRestClientSession)SecurityContextHolder.getContext().getAuthentication();
+					if (upstreamSession!=null){
+						// get the linked RestTemplate stored by DigestAuthenticationManager in the token
+						template = upstreamSession.getRestTemplate();
+						if (template==null){
+							throw new SessionAuthenticationException("User not logged in.");
+						}
+						// move the template from the upstream to the downstream session
+						downstreamSession.setAttribute(RESTTEMPLATE_SESSION_KEY, template);
+						//it's already in the user session, remove from context for further safety
+						upstreamSession.setRestTemplate(null);
 					}else{
-						//for further safety
-						restTemplateCache.remove(cacheKey.getUserName());
+						throw new CredentialsExpiredException("Missing security context.");
 					}
-				} catch (ExecutionException e) {
-					throw new RuntimeException("Unable to create RestTemplate object.", e);
 				}
-			}else{
-				throw new CredentialsExpiredException("Missing security context.");
 			}
 		}
+
 		return template;
 	}
 

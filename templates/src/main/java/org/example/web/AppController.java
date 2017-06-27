@@ -6,8 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.example.client.DigestRestClient;
-import org.example.client.RestTemplateCache;
-import org.example.client.RestTemplateCacheKey;
+import org.example.client.DigestRestClientSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +40,6 @@ public class AppController implements ErrorController {
 
     @Autowired
     private DigestRestClient digestRestClient;
-
-    @Autowired
-    private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
 
     /**
      * Assumes that the root URL should use a template named "index", which presumably will setup the Angular app.
@@ -90,10 +86,10 @@ public class AppController implements ErrorController {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = null;
         if (context != null){
-            auth = context.getAuthentication();
-            if (auth!=null){
-                // invalidate rest template if it is still in cache
-                restTemplateCache.remove((RestTemplateCacheKey)auth);
+            DigestRestClientSession upstreamSession = (DigestRestClientSession)context.getAuthentication();
+            if (upstreamSession!=null){
+                // remove rest template if it is still in the authenticated context
+                upstreamSession.setRestTemplate(null);
             }
         }
 

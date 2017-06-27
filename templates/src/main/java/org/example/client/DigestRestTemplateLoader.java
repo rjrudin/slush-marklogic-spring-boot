@@ -26,18 +26,18 @@ import java.net.URI;
  *  Loads RestTemplate {@link org.springframework.web.client.RestTemplate} objects wired for Digest authentication.
  */
 @Component
-public class DigestRestTemplateLoader extends CacheLoader<RestTemplateCacheKey, RestTemplate> {
+public class DigestRestTemplateLoader extends CacheLoader<DigestRestClientSession, RestTemplate> {
 
 	@Autowired
 	private RestConfig restConfig;
 
 	@Override
-	public RestTemplate load(RestTemplateCacheKey key) throws Exception {
+	public RestTemplate load(DigestRestClientSession clientSession) throws Exception {
 		final CredentialsProvider provider = new BasicCredentialsProvider();
-		provider.setCredentials(AuthScope.ANY, key);
+		provider.setCredentials(AuthScope.ANY, clientSession);
 		final CloseableHttpClient httpClient =
-			HttpClientBuilder.create().
-				setDefaultCredentialsProvider(provider).useSystemProperties().build();
+				HttpClientBuilder.create().
+						setDefaultCredentialsProvider(provider).useSystemProperties().build();
 		final HttpHost host = new HttpHost(restConfig.getHost(), restConfig.getRestPort(), restConfig.getScheme());
 		// Create AuthCache instance
 		final AuthCache authCache = new BasicAuthCache();
@@ -45,8 +45,9 @@ public class DigestRestTemplateLoader extends CacheLoader<RestTemplateCacheKey, 
 		final DigestScheme digestAuth = new DigestScheme();
 		digestAuth.overrideParamter("realm", "public");
 		authCache.put(host, digestAuth);
-		// return a RestTemplate with a custom request factory
-		return new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient){
+
+		// create a RestTemplate wired with a custom request factory using the above AuthCache with Digest Scheme
+		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient){
 			@Override
 			protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
 				// Add AuthCache to the execution context
@@ -55,5 +56,10 @@ public class DigestRestTemplateLoader extends CacheLoader<RestTemplateCacheKey, 
 				return localcontext;
 			}
 		});
+
+		//link template to the session
+		clientSession.setRestTemplate(restTemplate);
+
+		return restTemplate;
 	}
 }

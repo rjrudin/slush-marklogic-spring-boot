@@ -16,8 +16,6 @@ import com.marklogic.spring.security.context.SpringSecurityCredentialsProvider;
 import com.marklogic.spring.security.web.util.matcher.CorsRequestMatcher;
 import org.springframework.security.core.Authentication;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Extends Spring Boot's default web security configuration class and hooks in MarkLogic-specific classes from
  * marklogic-spring-web. Feel free to customize as needed.
@@ -68,17 +66,6 @@ public class Config extends WebSecurityConfigurerAdapter{
     @Bean
     public DigestRestTemplateLoader digestRestTemplateLoader() {
         return new DigestRestTemplateLoader();
-    }
-
-    /**
-     * Configures and sets the expiration of the cache for Spring's RestTemplate.
-     * Also wires the object to use Digest authentication.
-     *
-     * @return
-     */
-    @Bean
-    public RestTemplateCache<RestTemplateCacheKey> restTemplateCache() {
-        return new RestTemplateCache<>(10, TimeUnit.MINUTES, digestRestTemplateLoader());
     }
 
     /**

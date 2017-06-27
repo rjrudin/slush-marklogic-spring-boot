@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class DigestAuthenticationManager implements AuthenticationProvider, AuthenticationManager {
 
     @Autowired
-    private RestTemplateCache<RestTemplateCacheKey> restTemplateCache;
+    private DigestRestTemplateLoader digestRestTemplateLoader;
 
     @Autowired
     private URIUtil uriUtil;
@@ -42,7 +42,7 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
     @Override
     public boolean supports(Class<?> authentication) {
         return   UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)
-                || RestTemplateCacheKey.class.isAssignableFrom(authentication) ;
+                || DigestRestClientSession.class.isAssignableFrom(authentication) ;
     }
 
     @Override
@@ -56,9 +56,10 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
         String username = token.getPrincipal().toString();
         String password = token.getCredentials().toString();
 
-        RestTemplateCacheKey key = new RestTemplateCacheKey(username, password, token.getAuthorities());
+        DigestRestClientSession clientSession = new DigestRestClientSession(username, password, token.getAuthorities());
         try {
-            RestTemplate client = restTemplateCache.fetchOrCreate(key);
+            //load a RestTemplate and link it to the client session
+            RestTemplate client = digestRestTemplateLoader.load(clientSession);
             URI uri = uriUtil.buildUri(pathToAuthenticateAgainst, "");
             client.getForEntity(uri, String.class);
         } catch (HttpClientErrorException ex) {
@@ -71,9 +72,11 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
             }
         } catch (ExecutionException e) {
             throw new AuthenticationServiceException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new AuthenticationServiceException(e.getMessage(), e);
         }
 
-        return key;
+        return clientSession;
     }
 
     public void setPathToAuthenticateAgainst(String pathToAuthenticateAgainst) {
