@@ -3,3 +3,5 @@ temp
 *.log
 .idea
 templates/.gradle
+.gradle
+*.iml
