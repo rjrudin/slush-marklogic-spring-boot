@@ -77,15 +77,27 @@ public class Config extends WebSecurityConfigurerAdapter{
         return new URIUtil();
     }
 
-    /**
-     * Servlet Filter to compress large http responses.
-     * @return
+    /*
+      Servlet Filter to compress large http responses.
+
+      Superseeded by the configuration in application.properties for Spring Boot which ONLY takes effect on embedded Tomcat.
+          server.compression.enabled=true
+          server.compression.min-response-size=128
+
+      UNCOMMENT the following bean to enable compression on standalone application server deployment as an alternative to
+           container-based configuration.
+      Requires the following in build.gradle:
+         compile ("com.github.ziplet:ziplet:2.2.0"){
+             exclude group: 'javax.servlet', module: 'servlet-api'
+             exclude group: 'org.slf4j', module: 'slf4j-api'
+         }
+
+       @ Bean
+        public Filter compressingFilter() {
+            return new CompressingFilter();
+        }
      */
-   /* @Bean
-    public Filter compressingFilter() {
-        return new CompressingFilter();
-    }
-*/
+
     /**
      * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
      * manager that Spring Boot uses by default.  Configured to clear the credentials from the {@link Authentication}

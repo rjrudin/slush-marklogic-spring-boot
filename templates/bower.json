@@ -18,7 +18,7 @@
     "ml-utils": "withjam/ml-utils",
     "ng-json-explorer": "8c2a0f9104",
     "vkbeautify-wrapper": "https://github.com/vkiryukhin/vkBeautify.git",
-		"ml-esir-maps-ng": "ml-esri-maps-ng#^0.0.1"
+    "ml-esir-maps-ng": "ml-esri-maps-ng#^0.0.1"
   },
   "overrides": {
     "angular-highlightjs": {
@@ -30,3 +30,4 @@
     "angular": "~1.4.4"
   }
 }
+

@@ -36,6 +36,9 @@ Build the webapp (need to do this any time a file in the webapp is changed):
 Fire up Spring Boot, which runs an embedded Tomcat server:
 
     ./gradlew bootRun
+  OR
+    
+    java -jar build\libs\<app-name>-<version>.war
     
 ## What should I run while developing?
 
@@ -48,3 +51,32 @@ Here's the best way to do that:
 will automatically load new/modified MarkLogic modules, just like "gradle mlWatch". 
 
 You can also run the middle tier via an IDE like IntelliJ or Eclipse - just run the "App" program.
+
+## For standalone web deployments 
+
+In case that the web application won't be run as the root base context, run the following to replace the base href 
+in all html templates: 
+(html head node matching regex '<base href="/"[ ]?/>' will be replaced by '\<base href="/<slush-generated-app-context>/"/>')
+
+    #NOTE the forward slash at the end of the command as part of the basePath
+    gulp build --basePath <slush-generated-app-context>/
+
+Generate a war file that excludes all web container provided jar classes:
+
+    gradle warRelease
+     
+To prepare for remote application or web server deployments update the target info in gradle.properties:
+
+    targetContainerId=tomcat8x    
+    targetPort=8080    
+    targetHost=localhost      
+    targetContext=    
+    deployUser=admin      
+    deployPassword=
+
+Once the server is ready to receive remote deployments, run the following:
+
+    gradle cargoDeployRemote -PdeployPassword=password -PtargetContext=<slush-generated-app-context>
+    
+For the list of supported application servers see: https://codehaus-cargo.github.io/cargo/Home.html   
+

@@ -2,6 +2,10 @@
   'use strict';
 
   angular.module('app.user')
+    .config(["MLRestProvider", function (MLRestProvider) {
+        // Make MLRest target url start with the page's base href (proxy)
+        MLRestProvider.setPrefix(angular.element(document.querySelector('base')).attr('href')+'v1');
+    }])
     .controller('ProfileCtrl', ProfileCtrl);
 
   ProfileCtrl.$inject = ['$scope', '$state', 'MLRest', 'userService'];
@@ -55,7 +59,7 @@
           }
         }, {
           format: 'json',
-          uri: '/api/users/' + ctrl.user.name + '.json'
+          uri: 'api/users/' + ctrl.user.name + '.json'
           // TODO: add read/update permissions here like this:
           // 'perm:sample-role': 'read',
           // 'perm:sample-role': 'update'

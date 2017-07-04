@@ -37,7 +37,7 @@
         return _isAuthenticated;
       }
 
-      return $http.get('/api/user/status', {}).then(function(response) {
+      return $http.get('api/user/status', {}).then(function(response) {
         if (response.data.authenticated === false) {
           _isAuthenticated = false;
         }
@@ -56,7 +56,7 @@
     }
 
     function login(username, password) {
-      return $http.post('/api/user/login', {
+      return $http.post('api/user/login', {
         'username': username,
         'password': password
       }).then(function(response) {
@@ -83,7 +83,7 @@
             };
           }],
           controllerAs: 'ctrl',
-          templateUrl: '/app/login/login-modal.html',
+          templateUrl: 'app/login/login-modal.html',
           backdrop: 'static',
           keyboard: false
         });
@@ -107,13 +107,13 @@
     }
 
     function logout() {
-      return $http.get('/api/user/logout').then(function(response) {
+      return $http.get('api/user/logout').then(function(response) {
         $rootScope.$broadcast('loginService:logout-success', response);
         _loginError = null;
         _isAuthenticated = false;
         $state.reload();
         // Added this, as just reloading the state wasn't forcing a refresh of the whole page on logout.
-        $window.location.href = '/';
+        $window.location.href = 'login';
         return response;
       });
     }

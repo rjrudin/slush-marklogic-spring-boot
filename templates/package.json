@@ -9,11 +9,16 @@
     "gulp-inject": "^3.0.0",
     "gulp-less": "^1.2.3",
     "gulp-plumber": "^1.0.1",
+    "gulp-regex-replace": "^0.2.3",
+    "gulp-replace": "^0.6.1",
     "gulp-wiredep": "0.0.0",
     "run-sequence": "^1.1.5"
   },
   "engines": {
     "node": ">=0.8.0"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "yargs": "^8.0.2"
+  }
 }

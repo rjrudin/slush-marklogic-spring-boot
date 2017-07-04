@@ -15,6 +15,9 @@ plugins {
 	id "eclipse"
 	id "org.springframework.boot" version "1.5.4.RELEASE"
 	id "com.marklogic.ml-gradle" version "2.5.0"
+	id "war"
+	id "com.bmuschko.cargo" version "2.2.3"
+	id "com.bmuschko.tomcat" version "2.3"
 
 	// For managing environment-sensitive properties - see https://github.com/stevesaliman/gradle-properties-plugin
 	// id 'net.saliman.properties' version '1.4.5'
@@ -49,16 +52,18 @@ configurations {
 
 dependencies {
 	// Main Boot library for running a webapp
-	compile("org.springframework.boot:spring-boot-starter-web:1.5.4.RELEASE")
+	def springBootVersion = '1.5.4.RELEASE'
+	compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+	//runtime "org.springframework.boot:spring-boot-starter-tomcat:$springBootVersion"
 
 	// Adds Spring Security integration
-	compile("org.springframework.boot:spring-boot-starter-security:1.5.4.RELEASE")
+	compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
 
 	// Adds Thymeleaf integration; Thymeleaf is used for the main HTML templates
-	compile("org.springframework.boot:spring-boot-starter-thymeleaf:1.5.4.RELEASE")
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
 
 	// Optional Boot library - see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html
-	compile("org.springframework.boot:spring-boot-devtools:1.5.4.RELEASE")
+	compile("org.springframework.boot:spring-boot-devtools:$springBootVersion")
 
 	// Provides integration points between Boot and MarkLogic
 	compile "com.marklogic:marklogic-spring-web:1.1.0"
@@ -81,7 +86,13 @@ dependencies {
 	mlcp "com.marklogic:mlcp:8.0.6"
 	mlcp files("mlcp")
 
+	// For application server deployment
+	def cargoVersion = '1.6.4'
+	cargo "org.codehaus.cargo:cargo-core-uberjar:$cargoVersion",
+			"org.codehaus.cargo:cargo-ant:$cargoVersion"
+
 }
+
 
 // Tell Spring Boot, when run by Gradle, to watch the resources directory
 bootRun {
@@ -140,3 +151,43 @@ task corbRun(type: com.marklogic.gradle.task.CorbTask, dependsOn: ['mlLoadModule
 	processModule = "transform.xqy"
 }
 
+/**
+ * Generates a war file for standalone web deployment.
+ * Excludes unprocessed templates and the runtime provided jar files.
+ * Sample usage:
+ *    gulp build --basePath slush-generated-app/
+ *    gradle warRelease
+ */
+task warRelease(type: War) {
+	exclude('*.html')
+	webInf {
+		from 'src/main/resources/templates'
+		into '/'
+	}
+}
+
+/**
+ * Allows local and remote deployment of project artifacts to web containers.
+ * See the gradle.properties file for the cargo task configuration.
+ * Sample usage:
+ *    gulp build --basePath slush-generated-app/
+ *    gradle warRelease
+ *    gradle cargoDeployRemote -PdeployPassword=password -PtargetContext=slush-generated-app
+ *
+ * For the list of supported application servers see: https://codehaus-cargo.github.io/cargo/Home.html
+ */
+cargo {
+	containerId = targetContainerId
+	port = targetPort.toInteger()
+
+	deployable {
+		context = targetContext
+	}
+
+	remote {
+		hostname = targetHost
+		username = deployUser
+		password = deployPassword
+	}
+
+}

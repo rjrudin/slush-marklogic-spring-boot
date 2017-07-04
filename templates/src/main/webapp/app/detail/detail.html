@@ -7,7 +7,7 @@
           <json-explorer ng-if="ctrl.type==='json'" data="ctrl.json"></json-explorer>
           <pre ng-if="ctrl.type!=='json'" class="pre-xml">{{ctrl.xml}}</pre>
 
-          <a ng-if="ctrl.type==='binary'" target="_blank" ng-href="/v1/documents?uri={{ctrl.uri}}&transform=download" class="btn btn-default">Download</a>
+          <a ng-if="ctrl.type==='binary'" target="_blank" ng-href="v1/documents?uri={{ctrl.uri}}&transform=download" class="btn btn-default">Download</a>
 
         </div>
       </tab>

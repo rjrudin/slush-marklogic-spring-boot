@@ -3,6 +3,10 @@
   'use strict';
 
   angular.module('app.similar')
+    .config(["MLRestProvider", function (MLRestProvider) {
+        // Make MLRest target url start with the page's base href (proxy)
+        MLRestProvider.setPrefix(angular.element(document.querySelector('base')).attr('href')+'v1');
+    }])
     .directive('mlSimilar', mlSimilar);
 
   mlSimilar.$inject = ['MLRest'];
