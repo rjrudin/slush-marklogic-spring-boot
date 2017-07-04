@@ -56,7 +56,7 @@ You can also run the middle tier via an IDE like IntelliJ or Eclipse - just run 
 
 In case that the web application won't be run as the root base context, run the following to replace the base href 
 in all html templates: 
-(html head node matching regex '<base href="/"[ ]?/>' will be replaced by '\<base href="/<slush-generated-app-context>/"/>')
+(html head node matching regex '<base href="/"[ ]?/>' will be replaced by '\<base href="/\<slush-generated-app-context\>/"/>')
 
     #NOTE the forward slash at the end of the command as part of the basePath
     gulp build --basePath <slush-generated-app-context>/
