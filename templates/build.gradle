@@ -52,6 +52,7 @@ configurations {
 
 dependencies {
 	// Main Boot library for running a webapp
+	def springBootVersion = '1.5.4.RELEASE'
 	compile ("org.springframework.boot:spring-boot-starter-web:$springBootVersion"){
 		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
 	}
