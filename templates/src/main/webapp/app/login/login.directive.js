@@ -9,14 +9,14 @@
     return {
       restrict: 'EA',
       controller: 'LoginCtrl',
-      controllerAs: 'ctrl',
+      controllerAs: '$ctrl',
       replace: true,
       scope: {
         showCancel: '=',
         mode: '@',
         callback: '&'
       },
-      templateUrl: 'app/login/login-dir.html'
+      templateUrl: 'app/login/login.html'
     };
   }
 

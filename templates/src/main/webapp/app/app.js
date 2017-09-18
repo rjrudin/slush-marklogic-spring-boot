@@ -2,22 +2,15 @@
   'use strict';
 
   angular.module('app', [
-    'ml.common',
-    'ml.search',
-    'ml.search.tpls',
-    'ml.utils',
-    'ngJsonExplorer',
-    'app.create',
-    'app.detail',
+    // routing
+    'app.route',
+
+    // http interceptors
     'app.error',
     'app.login',
-    'app.root',
-    'app.search',
-    'app.uploader',
-    'app.user',
-    'ui.bootstrap',
-    'ui.router',
-    'ml.esri-maps'
+
+    // top-level state
+    'app.root'
   ]);
 
 }());

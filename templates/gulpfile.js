@@ -168,3 +168,7 @@ gulp.task('clean-templates', function(callback) {
 gulp.task('clean-static', function (callback) {
     del(paths.dest.static, {force:true}, callback);
 });
+
+
+
+module.exports = gulp;

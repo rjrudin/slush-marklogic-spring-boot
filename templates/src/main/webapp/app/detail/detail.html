@@ -1,36 +1,56 @@
 <div class="row detail">
-  <div class="col-sm-8">
-    <tabset type="pills">
-      <tab active="true">
-        <tab-heading>{{ctrl.type | uppercase}}</tab-heading>
+  <div class="col-sm-8 content-col">
+    <!-- note - ->
+    <uib-tabset type="pills">
+      <uib-tab ng-if="$ctrl.type==='json'">
+        <uib-tab-heading>JSON</uib-tab-heading>
         <div class="col-sm-9">
-          <json-explorer ng-if="ctrl.type==='json'" data="ctrl.json"></json-explorer>
-          <pre ng-if="ctrl.type!=='json'" class="pre-xml">{{ctrl.xml}}</pre>
-
-          <a ng-if="ctrl.type==='binary'" target="_blank" ng-href="v1/documents?uri={{ctrl.uri}}&transform=download" class="btn btn-default">Download</a>
-
+          <json-explorer data="$ctrl.json"></json-explorer>
         </div>
-      </tab>
-      <tab ng-if="ctrl.type!=='json'">
-        <tab-heading>JSON</tab-heading>
+      </uib-tab>
+      <uib-tab ng-if="$ctrl.type==='xml' || $ctrl.type==='txt'">
+        <uib-tab-heading >XML</uib-tab-heading>
         <div class="col-sm-9">
-          <json-explorer data="ctrl.json"></json-explorer>
+          <pre class="pre-xml">{{$ctrl.xml}}</pre>
         </div>
-      </tab>
-      <tab ng-if="ctrl.type==='json'">
-        <tab-heading >XML</tab-heading>
+      </uib-tab>
+      <uib-tab ng-if="$ctrl.type==='binary'">
+        <uib-tab-heading >Binary</uib-tab-heading>
         <div class="col-sm-9">
-          <pre class="pre-xml">{{ctrl.xml}}</pre>
+          <a target="_blank" ng-href="/v1/documents?uri={{$ctrl.uri}}&transform=download"
+             class="btn btn-default">Download</a>
         </div>
-      </tab>
-    </tabset>
+      </uib-tab>
+    </uib-tabset-->
+    <view-file uri="$ctrl.viewUri" content-type="$ctrl.contentType"
+      allow-modal="true" controls="true" download-uri="$ctrl.downloadUri"
+      file-name="$ctrl.fileName" show-code="false" trust-uri="false">
+    </view-file>
   </div>
-  <div class="col-sm-4">
+  <div class="col-sm-4 right-col">
+    <div id="buttons-detail">
+      <button class="btn btn-default" ui-sref="root.search">Search</button>
+      <button class="btn btn-primary"
+              ng-show="!$rootCtrl.currentUser.disallowUpdates" 
+              ui-sref="root.edit({uri: $ctrl.uri, prev: 'root.view'})">Edit</button>
+      <button class="btn btn-primary"
+              ng-show="!$rootCtrl.currentUser.disallowUpdates" 
+              mwl-confirm
+              title="This will permanently delete {{$ctrl.uri}}, are you sure?"
+              confirm-text="Yes"
+              cancel-text="No"
+              placement="bottom"
+              on-confirm="$ctrl.delete()"
+              on-cancel="cancelClicked = true"
+              confirm-button-type="danger"
+              cancel-button-type="default">Delete</button>
+    </div>
+    <br>
     <!-- show (links to) similar documents -->
-    <div class="panel panel-default">
+    <div class="panel panel-default similar">
       <div class="panel-heading">Similar</div>
       <div class="panel-body">
-        <ml-similar uri="{{ctrl.uri}}" limit="5"></ml-similar>
+        <ml-similar uri="{{$ctrl.uri}}" limit="5"></ml-similar>
       </div>
     </div>
   </div>

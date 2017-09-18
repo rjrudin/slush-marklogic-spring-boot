@@ -1,20 +1,61 @@
-(function () {
+(function() {
   'use strict';
 
   angular.module('app.create')
-    .config(["MLRestProvider", function (MLRestProvider) {
-        // Make MLRest target url start with the page's base href (proxy)
-        MLRestProvider.setPrefix(angular.element(document.querySelector('base')).attr('href')+'v1');
-    }])
     .controller('CreateCtrl', CreateCtrl);
 
-  CreateCtrl.$inject = ['$scope', 'MLRest', '$state', 'userService'];
+  CreateCtrl.$inject = ['$scope', 'MLRest', '$state',
+    'ngToast', 'x2js', 'doc', '$stateParams'
+  ];
 
-  function CreateCtrl($scope, mlRest, $state, userService) {
+  function CreateCtrl($scope, mlRest, $state, toast, x2js, doc, $stateParams) {
     var ctrl = this;
 
-    angular.extend(ctrl, {
-      person: {
+    ctrl.x2js = x2js;
+
+    ctrl.mode = 'create';
+
+    ctrl.prevState = $stateParams.prev || 'root.landing';
+    if (doc && (ctrl.prevState === 'root.view')) {
+      ctrl.prevState = ctrl.prevState + '({uri: $ctrl.uri})';
+    } else if (['root.create', 'root.edit'].indexOf(ctrl.prevState) >= 0) {
+      ctrl.prevState = 'root.landing';
+    }
+
+    if (doc) {
+      ctrl.mode = 'edit';
+      //check extension
+      if (doc.config.params.format === 'json') {
+        ctrl.person = doc.data;
+      } else {
+        /* jscs: disable */
+        //expect xml format
+        /*jshint camelcase: false */
+        var wrapped = x2js.xml_str2json(doc.data);
+        ctrl.person = wrapped.xml;
+      }
+
+      if (!ctrl.person.tags) {
+        ctrl.person.tags = [];
+      }
+
+      if (!ctrl.person.friends) {
+        ctrl.person.friends = [];
+      }
+
+      if (!ctrl.person.location) {
+        ctrl.person.location = {
+          latitude: 0,
+          longitude: 0
+        };
+      }
+
+      ctrl.uri = $stateParams.uri;
+
+    } else {
+      ctrl.mode = 'create';
+
+      ctrl.person = {
         isActive: true,
         balance: 0,
         picture: 'http://placehold.it/32x32',
@@ -28,17 +69,21 @@
         address: null,
         about: null,
         registered: null,
-        latitude: 0,
-        longitude: 0,
+        location: {
+          latitude: 0,
+          longitude: 0
+        },
         tags: [],
         friends: [],
         greeting: null,
         favoriteFruit: null
-      },
+      };
+    }
+
+    angular.extend(ctrl, {
       newTag: null,
-      currentUser: null,
       editorOptions: {
-        plugins : 'advlist autolink link image lists charmap print preview'
+        plugins: 'advlist autolink link image lists charmap print preview'
       },
       submit: submit,
       addTag: addTag,
@@ -46,17 +91,52 @@
     });
 
     function submit() {
-      mlRest.createDocument(ctrl.person, {
-        format: 'json',
-        directory: '/content/',
-        extension: '.json',
-        collection: ['data', 'data/people']
-        // TODO: add read/update permissions here like this:
-        // 'perm:sample-role': 'read',
-        // 'perm:sample-role': 'update'
-      }).then(function(response) {
-        $state.go('root.view', { uri: response.replace(/(.*\?uri=)/, '') });
-      });
+      var extension = '.json';
+      var data = ctrl.person;
+      if (ctrl.person.docFormat === 'xml') {
+        extension = '.xml';
+        var wrap = {
+          xml: ctrl.person
+        };
+        /*jshint camelcase: false */
+        data = x2js.json2xml_str(wrap);
+      }
+      /* jscs: enable */
+
+      if (ctrl.mode === 'create') {
+        mlRest.createDocument(data, {
+          format: ctrl.person.docFormat,
+          directory: '/content/',
+          extension: extension,
+          collection: ['data', 'data/people']
+          // TODO: add read/update permissions here like this:
+          // 'perm:sample-role': 'read',
+          // 'perm:sample-role': 'update'
+        }).then(function(response) {
+          toast.success('Created');
+          $state.go('root.view', {
+            uri: response.replace(/(.*\?uri=)/, '')
+          });
+        }, function(response) {
+          //since we already toast and redirect to the login screen on 401s
+          //only toast on other errors
+          if (response.status !== 401) {
+            toast.danger(response.data);
+          }
+        });
+      } else {
+        // use update when in update mode
+        mlRest.updateDocument(data, {
+          uri: ctrl.uri
+        }).then(function(response) {
+          toast.success('Saved');
+          $state.go('root.view', {
+            uri: ctrl.uri
+          });
+        }, function(response) {
+          toast.danger(response.data);
+        });
+      }
     }
 
     function addTag() {
@@ -69,9 +149,5 @@
     function removeTag(index) {
       ctrl.person.tags.splice(index, 1);
     }
-
-    $scope.$watch(userService.currentUser, function(newValue) {
-      ctrl.currentUser = newValue;
-    });
   }
 }());

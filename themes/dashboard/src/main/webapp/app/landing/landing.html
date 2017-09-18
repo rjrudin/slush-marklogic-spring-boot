@@ -1,0 +1,108 @@
+<!-- template: dashboard -->
+<section class="content-header">
+  <h1>Successful Deployment! <small>Slush Generator</small></h1>
+</section>
+
+<section class="content landing">
+  <content-box box-bordered="true" box-title="Example Charts">
+    <div class="row" ng-if="!$rootCtrl.currentUser.authenticated">
+      <div class="col-sm-12">
+        <uib-alert type="warning"><a ui-sref="root.login">Sign in</a> to see some nice charts</uib-alert>
+      </div>
+    </div>
+    <div class="row" ng-if="$rootCtrl.currentUser.authenticated">
+      <div class="col-sm-3 col-sm-offset-1">
+        <ml-highchart highchart-config="$ctrl.eyeColor" ml-search="$ctrl.mlSearch"></ml-highchart>
+      </div>
+      <div class="col-sm-3">
+        <ml-highchart highchart-config="$ctrl.gender" ml-search="$ctrl.mlSearch"></ml-highchart>
+      </div>
+      <div class="col-sm-3">
+        <ml-highchart highchart-config="$ctrl.combined" ml-search="$ctrl.mlSearch"></ml-highchart>
+      </div>
+    </div>
+  </content-box>
+
+  <content-box box-bordered="true" box-title="Additional Information">
+    <p>You can go check out the sample application once you've logged in! If you loaded the documents from the <em>data</em> directory via the instructions in the readme, you should also be able to <a ui-sref="root.search">search</a> over the included dictionary. The application allows you to <a ui-sref="root.create">create</a> various people that you can then <a ui-sref="root.search">search</a>. If you fill out all the fields, you'll be able to use the built-in <em>faceting</em> and <em>typeahead</em> features!</p>
+    <p>If you need any help making the application your own refer to the links below:</p>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Slush-MarkLogic-Spring-Boot Generator</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+							<div><a href="https://github.com/rjrudin/slush-marklogic-spring-boot">Generator Home</a></div>
+							<div><a href="https://github.com/rjrudin/slush-marklogic-spring-boot/issues">Current Issues</a></div>
+							<div><a href="https://github.com/rjrudin/slush-marklogic-spring-boot/wiki">Wiki</a></div>
+							<div><a href="https://github.com/marklogic-community/ml-gradle">ML Gradle</a></div>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Stack Technology</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+							<div><a href="http://docs.marklogic.com">MarkLogic</a></div>
+							<div><a href="https://gradle.org/">Gradle</a></div>
+							<div><a href="http://gulpjs.com/">Gulp</a></div>
+							<div><a href="http://expressjs.com/">ExpressJS</a></div>
+							<div><a href="https://angularjs.org/">AngularJS</a></div>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Recommended Guides and Sites</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li><a href="https://docs.marklogic.com/">MarkLogic Documentation</a></li>
+              <li><a href="https://github.com/marklogic/roxy/wiki">Deploying MarkLogic Using Roxy</a></li>
+              <li><a href="https://docs.marklogic.com/guide/rest-dev">MarkLogic REST Application Developer's Guide</a></li>
+              <li><a href="https://github.com/marklogic">MarkLogic Github and Helpful Tools</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">IDE Suggestions</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li><a href="http://www.sublimetext.com/3">Sublime Text 3</a>
+                <ul>
+                  <li><a href="https://sublime.wbond.net/">Package Control</a>:
+                    <ul>
+                      <li><a href="https://github.com/paxtonhare/MarkLogic-Sublime">MarkLogic Plugin</a></li>
+                      <li><a href="https://github.com/uipoet/sublime-jshint">sublime-jshint</a></li>
+                      <li><a href="https://github.com/alexnj/SublimeOnSaveBuild">SublimeOnSaveBuild</a></li>
+                      <li><a href="https://github.com/sindresorhus/editorconfig-sublime">editorconfig-sublime</a></li>
+                      <li><a href="https://github.com/danro/LESS-sublime">LESS (CSS-style highlighting)</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="https://www.jetbrains.com/webstorm/">Webstorm</a></li>
+              <li>TextMate (2alpha)
+                <ul>
+                  <li><a href="https://github.com/bodnaristvan/JSHint.tmbundle#readme">jshint</a></li>
+                  <li><a href="https://github.com/Mr0grog/editorconfig-textmate#readme">editorconfig</a></li>
+                  <li><a href="https://github.com/paxtonhare/xquery.tmbundle">MarkLogic auto-completion: XQuery.tmbundle</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </content-box>
+</section>

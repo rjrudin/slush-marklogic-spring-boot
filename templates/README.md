@@ -21,6 +21,16 @@ the future.
 
     ./gradlew -i mlDeploy
     
+To deploy the initial set of documents that will go to the content db, run the following command.
+The deployContent task in build.gradle deploys the specific files from ml-content folder with their corresponding role 
+and privilege pairs. 
+
+    ./gradlew -i deployContent
+    
+Optional: To import 3,000 sample records, run the following command.
+  
+    ./gradlew -i importSampleData
+    
 Install the Node dependencies (only needs to be done in the future when these change):
 
     npm install
@@ -58,7 +68,7 @@ In case that the web application won't be run as the root base context, run the 
 in all html templates: 
 (html head node matching regex '<base href="/"[ ]?/>' will be replaced by '\<base href="/\<slush-generated-app-context\>/"/>')
 
-    #NOTE the forward slash at the end of the command as part of the basePath
+    #NOTE the forward slash ('/') at the end of the command as part of the basePath
     gulp build --basePath <slush-generated-app-context>/
 
 Generate a war file that excludes all web container provided jar classes:
@@ -76,6 +86,10 @@ To prepare for remote application or web server deployments update the target in
 
 Once the server is ready to receive remote deployments, run the following:
 
+    #NOTE that the user and password in the gradle.properties and in the command below 
+    #     are not from a MarkLogic admin account but an account in the target 
+    #     application server ( i.e: Tomcat - conf\tomcat-users.xml )
+    #NOTE also the lack of slash (/) at the end of the command below     
     gradle cargoDeployRemote -PdeployPassword=password -PtargetContext=<slush-generated-app-context>
     
 For the list of supported application servers see: https://codehaus-cargo.github.io/cargo/Home.html   

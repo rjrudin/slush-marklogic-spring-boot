@@ -29,7 +29,7 @@ public class DigestAuthenticationManager implements AuthenticationProvider, Auth
     @Autowired
     private URIUtil uriUtil;
 
-    private String pathToAuthenticateAgainst = "/ext/login-check.xqy";
+    private String pathToAuthenticateAgainst = "/login-check.xqy";
 
     /**
      * A RestConfig instance is needed so a request can be made to MarkLogic to see if the user can successfully
