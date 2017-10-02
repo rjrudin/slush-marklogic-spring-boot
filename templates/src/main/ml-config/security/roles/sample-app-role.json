@@ -1,0 +1,5 @@
+{
+	"role-name": "<%= appName %>-role",
+	"description": "A role for users of the <%= appName %> application",
+	"role": ["rest-reader", "rest-writer"]
+}

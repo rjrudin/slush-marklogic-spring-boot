@@ -1,0 +1,6 @@
+{
+	"user-name": "<%= appName %>-default-user",
+	"description": "The default user for the <%= appName %> application",
+	"password": "password",
+	"role": ["<%= appName %>-role"]
+}

@@ -37,15 +37,6 @@
         }
         return config;
       },
-      response: function(response) {
-      	// Hack for when the Spring Boot session dies; we log the user out so they're sent to a full page login form
-        if (typeof response.data === 'string') {
-        	if (response.data.indexOf instanceof Function && response.data.indexOf('springBootLoginForm') !== -1) {
-        		$injector.get('loginService').logout();
-        	}
-        }
-        return response;
-      },
       responseError: function(rejection) {
         // Not logged in or session has expired
         var userService = $injector.get('userService');

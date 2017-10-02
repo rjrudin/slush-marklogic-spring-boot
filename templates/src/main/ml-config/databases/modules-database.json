@@ -1,0 +1,21 @@
+{
+	"database-name": "%%MODULES_DATABASE%%",
+	"stemmed-searches": "off",
+	"fast-phrase-searches": false,
+	"fast-case-sensitive-searches": false,
+	"fast-diacritic-sensitive-searches": false,
+	"fast-element-word-searches": false,
+	"fast-element-phrase-searches": false,
+	"maintain-last-modified": false,
+	"geospatial-element-pair-index": [],
+	"element-word-query-through":
+		[],
+	"phrase-through":
+		[],
+	"phrase-around":
+	  [],
+	"range-element-index":
+	  [],
+	"range-path-index":
+	  []
+}

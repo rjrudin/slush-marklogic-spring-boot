@@ -2,16 +2,24 @@
   'use strict';
 
   angular.module('app.login')
+		.config(["MLRestProvider", function (MLRestProvider) {
+			// Make MLRest target url start with the page's base href (proxy)
+			MLRestProvider.setPrefix(angular.element(document.querySelector('base')).attr('href')+'v1');
+		}])
     .factory('loginService', LoginService);
 
-  LoginService.$inject = ['$http', '$modal', '$q', '$rootScope', '$state',
+  LoginService.$inject = ['$http', '$uibModal', '$q', '$rootScope', '$state',
     '$stateParams', 'messageBoardService', '$window'];
-  function LoginService($http, $modal, $q, $rootScope, $state, $stateParams, messageBoardService, $window) {
+  function LoginService($http, $uibModal, $q, $rootScope, $state,
+    $stateParams, messageBoardService, $window) {
+
+    var service = {};
     var _loginMode = 'full'; // 'modal', 'top-right', or 'full'
     var _loginError;
     var _toStateName;
     var _toStateParams;
     var _isAuthenticated;
+    var _userPrefix = '';
     var _protectedRoutes = [];
     var deregisterLoginSuccess;
 
@@ -23,7 +31,7 @@
     }
 
     function failLogin(response) {
-      if (response.status === 401) {
+      if (response.status > 200) {
         _loginError = true;
       }
     }
@@ -33,32 +41,47 @@
     }
 
     function getAuthenticatedStatus() {
-      if (_isAuthenticated) {
-        return _isAuthenticated;
+      if (_isAuthenticated !== undefined) {
+        return $q.resolve(_isAuthenticated);
       }
 
-      return $http.get('/api/user/status', {}).then(function(response) {
+      return $http.get('api/user/status', {}).then(function(response) {
         if (response.data.authenticated === false) {
           _isAuthenticated = false;
+          if (response.data.appUsersOnly) {
+            _userPrefix = response.data.appName + '-';
+          }
         }
         else
         {
           loginSuccess(response);
         }
-        return isAuthenticated();
+        return service.isAuthenticated();
       });
     }
 
     function loginSuccess(response) {
       _loginError = null;
       _isAuthenticated = true;
+      if (response.data.appUsersOnly) {
+        _userPrefix = response.data.appName + '-';
+      }
       $rootScope.$broadcast('loginService:login-success', response.data);
     }
 
     function login(username, password) {
-      return $http.post('/api/user/login', {
-        'username': username,
+      return $http.post('api/user/login', {
+        'username': _userPrefix + username,
         'password': password
+      }).then(function(response) {
+        loginSuccess(response);
+        return response;
+      }, failLogin);
+    }
+
+    function switchLogin(username) {
+      return $http.post('api/user/switch', {
+        'username': username
       }).then(function(response) {
         loginSuccess(response);
         return response;
@@ -68,8 +91,8 @@
     function loginPrompt() {
       var d = $q.defer();
       if (_loginMode === 'modal') {
-        $modal.open({
-          controller: ['$modalInstance', function($modalInstance) {
+        $uibModal.open({
+          controller: ['$uibModalInstance', function($uibModalInstance) {
             var ctrl = this;
             ctrl.showCancel = $state.current.name !== 'root.landing';
             ctrl.close = function(user) {
@@ -79,7 +102,7 @@
                 d.reject();
                 $state.go('root.landing');
               }
-              return $modalInstance.close();
+              return $uibModalInstance.close();
             };
           }],
           controllerAs: 'ctrl',
@@ -101,19 +124,21 @@
             'params': JSON.stringify((_toStateParams || $stateParams))
           }).then(function() {
             d.reject();
+          }, function(error) {
+            throw error;
           });
       }
       return d.promise;
     }
 
     function logout() {
-      return $http.get('/api/user/logout').then(function(response) {
+      return $http.get('api/user/logout').then(function(response) {
         $rootScope.$broadcast('loginService:logout-success', response);
         _loginError = null;
         _isAuthenticated = false;
         $state.reload();
-        // Added this, as just reloading the state wasn't forcing a refresh of the whole page on logout.
-        $window.location.href = '/';
+				// Added this, as just reloading the state wasn't forcing a refresh of the whole page on logout.
+				$window.location.href = 'login';
         return response;
       });
     }
@@ -135,7 +160,7 @@
 
     function blockRoute(event, next, nextParams) {
       event.preventDefault();
-      loginPrompt();
+      service.loginPrompt();
       if (_loginMode !== 'full') {
         if (deregisterLoginSuccess) {
           deregisterLoginSuccess();
@@ -156,34 +181,33 @@
       }
 
       if (routeIsProtected(next.name)) {
-        var auth = getAuthenticatedStatus();
-
-        if (angular.isFunction(auth.then)) {
-          auth.then(function() {
-            if (!isAuthenticated()) {
-              //this does NOT block requests in a timely fashion...
-              blockRoute(event, next, nextParams);
-            }
-          });
-        }
-        else {
-          if (!auth) {
+        service.getAuthenticatedStatus().then(function() {
+          if (!service.isAuthenticated()) {
+            //this does NOT block requests in a timely fashion...
             blockRoute(event, next, nextParams);
           }
-        }
+        });
 
       }
     });
 
-    return {
+    $rootScope.$on('loginService:profile-changed', function() {
+      _isAuthenticated = undefined;
+      service.getAuthenticatedStatus();
+    });
+
+    angular.extend(service, {
       login: login,
       logout: logout,
+      switch: switchLogin,
       loginPrompt: loginPrompt,
       loginError: loginError,
       loginMode: loginMode,
       isAuthenticated: isAuthenticated,
       getAuthenticatedStatus: getAuthenticatedStatus,
       protectedRoutes: protectedRoutes
-    };
+    });
+
+    return service;
   }
 }());

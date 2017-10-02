@@ -1,96 +1,115 @@
 buildscript {
-    // Load MarkLogic properties from the Spring Boot properties file to avoid duplication
-    Properties props = new Properties()
-    props.load(new FileInputStream("src/main/resources/application.properties"))
-    props.each { prop ->
-        // Don't set the property if it's already been set, e.g. via -P on the command line
-        if (prop.key.startsWith("ml") && !project.hasProperty(prop.key)) {
-            project.ext.set(prop.key, prop.value)
-        }
-    }
-
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
-    }
+	// Load MarkLogic properties from the Spring Boot properties file to avoid duplication
+	Properties props = new Properties()
+	props.load(new FileInputStream("src/main/resources/application.properties"))
+	props.each { prop ->
+		// Don't set the property if it's already been set, e.g. via -P on the command line
+		if (prop.key.startsWith("ml") && !project.hasProperty(prop.key)) {
+			project.ext.set(prop.key, prop.value)
+		}
+	}
 }
 
 plugins {
-    id "java"
-    id "eclipse"
-    id "com.marklogic.ml-gradle" version "2.2.0"
+	id "java"
+	id "eclipse"
+	id "org.springframework.boot" version "1.5.4.RELEASE"
+	id "com.marklogic.ml-gradle" version "2.9.0"
+	id "war"
+	id "com.bmuschko.cargo" version "2.2.3"
+	id "com.bmuschko.tomcat" version "2.3"
 
-    // For managing environment-sensitive properties - see https://github.com/stevesaliman/gradle-properties-plugin
-    // id 'net.saliman.properties' version '1.4.5'
+	// For managing environment-sensitive properties - see https://github.com/stevesaliman/gradle-properties-plugin
+	// id 'net.saliman.properties' version '1.4.5'
 }
 
-apply plugin: 'spring-boot'
-
+version = '1.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 repositories {
-    jcenter()
+	jcenter()
 
-    // Needed for mlcp and its Hadoop dependencies
-    maven { url "http://developer.marklogic.com/maven2/" }
-    maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
+	// Needed for mlcp and its Hadoop dependencies
+	maven { url "http://developer.marklogic.com/maven2/" }
+	maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
+	// Needed for spring-boot-gradle-plugin dependencies
+	maven { url "https://plugins.gradle.org/m2/" }
+	maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
 configurations {
-    // Exclude log4j so that only logback is used for logging
-    compile.exclude module:'log4j'
-    compile.exclude module:'slf4j-log4j12'
+	// Exclude log4j so that only logback is used for logging
+	compile.exclude module:'log4j'
+	compile.exclude module:'slf4j-log4j12'
 
-    corb
+	corb
 
-    // Allows for downloading mlcp dependencies instead of downloading all of mlcp and setting it up yourself
-    mlcp
+	// Allows for downloading mlcp dependencies instead of downloading all of mlcp and setting it up yourself
+	mlcp {
+		resolutionStrategy {
+			force "xml-apis:xml-apis:1.4.01"
+		}
+	}
+
 }
 
 dependencies {
-    // Main Boot library for running a webapp
-    compile("org.springframework.boot:spring-boot-starter-web")
+	// Main Boot library for running a webapp
+	def springBootVersion = '1.5.4.RELEASE'
+	compile ("org.springframework.boot:spring-boot-starter-web:$springBootVersion"){
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+	}
+	providedCompile "org.springframework.boot:spring-boot-starter-tomcat:$springBootVersion"
 
-    // Adds Spring Security integration
-    compile("org.springframework.boot:spring-boot-starter-security")
+	// Adds Spring Security integration
+	compile("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
 
-    // Adds Thymeleaf integration; Thymeleaf is used for the main HTML templates
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+	// Adds Thymeleaf integration; Thymeleaf is used for the main HTML templates
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
 
-    // Optional Boot library - see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html
-    compile("org.springframework.boot:spring-boot-devtools")
+	// Optional Boot library - see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html
+	compile("org.springframework.boot:spring-boot-devtools:$springBootVersion")
 
-    // Provides integration points between Boot and MarkLogic
-    compile "com.marklogic:marklogic-spring-web:0.1.2"
+	// Provides integration points between Boot and MarkLogic
+	compile "com.marklogic:marklogic-spring-web:1.1.0"
 
-    // Needed for loading modules into MarkLogic
-    compile "com.marklogic:ml-javaclient-util:2.9.0"
+	// Needed for loading modules into MarkLogic
+	compile "com.marklogic:ml-javaclient-util:2.11.0"
 
-    // Needed for the Upload feature using mlcp
-    compile "com.marklogic:mlcp-util:0.2.0"
-    runtime "commons-fileupload:commons-fileupload:1.3.1"
+	// Needed for the Upload feature using mlcp
+	compile "com.marklogic:mlcp:8.0.6"
+	compile "com.marklogic:mlcp-util:0.3.0"
+	runtime "commons-fileupload:commons-fileupload:1.3.1"
 
-    // Needed for writing JUnit tests with ml-junit
-    testCompile "com.marklogic:ml-junit:2.6.0"
+	// Needed for writing JUnit tests with ml-junit
+	testCompile "com.marklogic:ml-junit:2.6.0"
 
-    // For Gradle tasks that run corb jobs
-    corb "com.marklogic:marklogic-corb:2.3.1"
+	// For Gradle tasks that run corb jobs
+	corb "com.marklogic:marklogic-corb:2.3.2"
 
-    // The mlcp directory contains a log4j config file, which mlcp needs for logging
-    mlcp "com.marklogic:mlcp:8.0-5"
-    mlcp files("mlcp")
+	// The mlcp directory contains a log4j config file, which mlcp needs for logging
+	mlcp "com.marklogic:mlcp:8.0.6"
+	mlcp files("mlcp")
+
+	// For application server deployment
+	def cargoVersion = '1.6.4'
+	cargo "org.codehaus.cargo:cargo-core-uberjar:$cargoVersion",
+			"org.codehaus.cargo:cargo-ant:$cargoVersion"
+
 }
+
 
 // Tell Spring Boot, when run by Gradle, to watch the resources directory
 bootRun {
-    addResources = true
+	addResources = true
 }
 
 // See http://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html
 springBoot {
-    executable = true
-    mainClass = "org.example.App"
-    excludeDevtools = true
+	executable = true
+	mainClass = "org.example.App"
+	excludeDevtools = true
 }
 
 /**
@@ -104,10 +123,10 @@ springBoot {
  * For more examples, see https://github.com/rjrudin/ml-gradle/tree/master/examples/mlcp-project .
  */
 task importData(type: ImportTask) {
-    input_file_path = "data"
-    output_uri_replace = "(.)+/data,''"
-    output_collections = "data"
-    args = []
+	input_file_path = "data"
+	output_uri_replace = "(.)+/data,''"
+	output_collections = "data"
+	args = []
 }
 
 /**
@@ -115,15 +134,15 @@ task importData(type: ImportTask) {
  * MlcpTask extends Gradle's JavaExec task, so all of JavaExec's properties are available.
  */
 class ImportTask extends com.marklogic.gradle.task.MlcpTask {
-    @TaskAction
-    @Override
-    public void exec() {
-        setClasspath(project.configurations.mlcp)
-        setCommand("IMPORT")
-        setPort(project.mlAppConfig.restPort)
-        setDatabase(project.mlAppConfig.contentDatabaseName)
-        super.exec()
-    }
+	@TaskAction
+	@Override
+	public void exec() {
+		setClasspath(project.configurations.mlcp)
+		setCommand("IMPORT")
+		setPort(project.mlAppConfig.restPort)
+		setDatabase(project.mlAppConfig.contentDatabaseName)
+		super.exec()
+	}
 }
 
 /**
@@ -132,8 +151,109 @@ class ImportTask extends com.marklogic.gradle.task.MlcpTask {
  * https://github.com/rjrudin/ml-gradle/tree/master/examples/corb2-project .
  */
 task corbRun(type: com.marklogic.gradle.task.CorbTask, dependsOn: ['mlLoadModules']) {
-    xccConnectionUri = "xcc://${mlUsername}:${mlPassword}@${mlHost}:${mlRestPort}"
-    moduleRoot = "/ext/corb/"
-    urisModule = "uris.xqy"
-    processModule = "transform.xqy"
+	xccConnectionUri = "xcc://${mlUsername}:${mlPassword}@${mlHost}:${mlRestPort}"
+	moduleRoot = "/ext/corb/"
+	urisModule = "uris.xqy"
+	processModule = "transform.xqy"
+}
+
+/**
+ * Generates a war file for standalone web deployment.
+ * Excludes unprocessed templates and the runtime provided jar files.
+ * Sample usage:
+ *    gulp build --basePath slush-generated-app/
+ *    gradle warRelease
+ */
+task warRelease(type: War) {
+	exclude('*.html')
+	webInf {
+		from 'src/main/resources/templates'
+		into '/'
+	}
+}
+
+/**
+ * Allows local and remote deployment of project artifacts to web containers.
+ * See the gradle.properties file for the cargo task configuration.
+ * Sample usage:
+ *    gulp build --basePath slush-generated-app/
+ *    gradle warRelease
+ *    gradle cargoDeployRemote -PdeployPassword=password -PtargetContext=slush-generated-app
+ *
+ * For the list of supported application servers see: https://codehaus-cargo.github.io/cargo/Home.html
+ */
+cargo {
+	containerId = targetContainerId
+	port = targetPort.toInteger()
+
+	deployable {
+		context = targetContext
+	}
+
+	remote {
+		hostname = targetHost
+		username = deployUser
+		password = deployPassword
+	}
+}
+
+task clean_collections(type: com.marklogic.gradle.task.ServerEvalTask, group: 'Converted Roxy build step') {
+    xquery = '      %Q{' +
+        '        xquery version "1.0-ml";' +
+        '' +
+        '        for $collection in fn:tokenize("#{what}", ",")' +
+        '        where fn:exists(fn:collection($collection)[1])' +
+        '        return (' +
+        '          xdmp:collection-delete($collection),' +
+        '          "Cleaned collection " || $collection' +
+        '        )'
+}
+
+task importInitialUser(type: com.marklogic.gradle.task.MlcpTask) {
+	classpath = configurations.mlcp
+	command = "IMPORT"
+	database = mlAppConfig.contentDatabaseName
+	input_file_path = "src/main/ml-content/api/users/sample-project-default-user.json"
+	output_permissions = "<%= appName %>-role,read,<%= appName %>-role,update,<%= appName %>-role,insert"
+	output_uri_replace = ".*ml-content,''"
+}
+
+task importAdminUser(type: com.marklogic.gradle.task.MlcpTask) {
+	classpath = configurations.mlcp
+	command = "IMPORT"
+	database = mlAppConfig.contentDatabaseName
+	input_file_path = "src/main/ml-content/api/users/admin.json"
+	output_permissions = "<%= appName %>-role,read,<%= appName %>-role,update,<%= appName %>-role,insert"
+	output_uri_replace = ".*ml-content,''"
+}
+
+task importDictionary(type: com.marklogic.gradle.task.MlcpTask) {
+	classpath = configurations.mlcp
+	command = "IMPORT"
+	database = mlAppConfig.contentDatabaseName
+	input_file_path = "src/main/ml-content/dictionary-large.xml"
+	output_permissions = "<%= appName %>-role,read,<%= appName %>-role,update,<%= appName %>-role,insert"
+	output_uri_replace = ".*ml-content,''"
+}
+
+// Define the task that depends on all deployment of content tasks
+task deployContent(dependsOn: ['importInitialUser', 'importAdminUser','importDictionary']) {
+	doFirst {
+		println 'Started deploying content to ' + mlAppConfig.contentDatabaseName
+	}
+	doLast {
+		println 'Finished deploying content'
+	}
+	group 'Deployment'
+}
+
+task importSampleData(type: com.marklogic.gradle.task.MlcpTask) {
+	classpath = configurations.mlcp
+	command = "IMPORT"
+	database = mlAppConfig.contentDatabaseName
+	input_file_path = "src/main/ml-content/sample-data.zip"
+	input_compressed = "true"
+	output_permissions = "<%= appName %>-role,read,<%= appName %>-role,update"
+	output_collections = "data,data/people"
+	output_uri_replace = ".*\\.zip,''"
 }

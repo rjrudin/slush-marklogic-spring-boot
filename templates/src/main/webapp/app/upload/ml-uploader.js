@@ -49,7 +49,7 @@
         var formData = new FormData();
         formData.append("data", JSON.stringify(opts));
         formData.append("file", theFile);
-        
+
         $http(
         {
           method: 'PUT',
@@ -151,7 +151,7 @@
             return false;
           });
         },
-        templateUrl: '/app/upload/uploadForm.html'
+        templateUrl: 'app/upload/uploadForm.html'
       };
     }
 

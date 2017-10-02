@@ -46,9 +46,9 @@ var defaults = (function () {
 
     return {
         appName: workingDirName,
-        userName: osUserName || format(user.name || ''),
-        authorName: user.name || '',
-        authorEmail: user.email || ''
+        userName: osUserName || format((user && user.name) || ''),
+        authorName: (user && user.name) || '',
+        authorEmail: (user && user.email) || ''
     };
 })();
 
@@ -88,6 +88,57 @@ gulp.task('default', function (done) {
         name: 'appBootPort',
         message: 'What port do you want the Spring Boot server to use?',
         default: '8080'
+      },
+      {
+        type: 'list',
+        name: 'template',
+        message: 'Select Template',
+        choices: [{
+            name: 'default',
+            value: 'default'
+        }, {
+            name: '3-columns',
+            value: '3column'
+        }, {
+            name: 'Cards',
+            value: 'cards'
+        }, {
+            name: 'Dashboard',
+            value: 'dashboard'
+        }, {
+            name: 'Full-screen map',
+            value: 'map'
+        }, {
+            name: 'I don\'t know',
+            value: 'unsure'
+        }]
+      },
+      {
+        type: 'list',
+        name: 'theme',
+        message: 'What is the main focus?',
+        when: function(ans) {
+            return ans.template === 'unsure';
+        },
+        choices: [{
+            name: 'Semantics',
+            value: '3column'
+        }, {
+            name: 'Charts',
+            value: 'dashboard'
+        }, {
+            name: 'Map/Graph',
+            value: 'map'
+        }, {
+            name: 'Data records',
+            value: 'cards'
+        }, {
+            name: 'Documents',
+            value: '3column'
+        }, {
+            name: 'Other',
+            value: 'default'
+        }]
       }
     ];
 
@@ -97,7 +148,9 @@ gulp.task('default', function (done) {
       var result = 
         rel.indexOf('fonts') == -1 && 
         rel.indexOf('images') == -1 &&
-        rel.indexOf('gradle-wrapper') == -1;
+        rel.indexOf('gradle-wrapper') == -1 &&
+        !rel.endsWith('.zip');
+      console.log (rel);
       return result;
     };
 
@@ -133,6 +186,11 @@ gulp.task('default', function (done) {
               srcPaths.push('!' + __dirname + '/templates/src/test/**');
             }
 
+            var theme = answers.theme || answers.template || clArgs.theme || 'default';
+            if (theme !== 'default') { // overlay the theme if not the default theme chosen
+                srcPaths.push(__dirname + '/themes/' + theme + '/**');
+            }
+
             gulp.src(srcPaths)
                 .pipe(gulpif(isTemplateable, template(answers, templateOptions)))
                 .pipe(rename(function (file) {
@@ -141,11 +199,12 @@ gulp.task('default', function (done) {
                     }
                 }))
                 .pipe(gulpif(isExecutable, chmod(755)))
-                .pipe(conflict('./'))
+                .pipe(conflict('./', {defaultChoice: 'y'}))
                 .pipe(gulp.dest('./'))
                 .pipe(install())
                 .on('end', function () {
                     done();
                 });
         });
+
 });

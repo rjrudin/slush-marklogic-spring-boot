@@ -2,14 +2,18 @@
   'use strict';
 
   angular.module('app.user')
+		.config(["MLRestProvider", function (MLRestProvider) {
+			// Make MLRest target url start with the page's base href (proxy)
+			MLRestProvider.setPrefix(angular.element(document.querySelector('base')).attr('href')+'v1');
+		}])
     .controller('ProfileCtrl', ProfileCtrl);
 
-  ProfileCtrl.$inject = ['$scope', '$state', 'MLRest', 'userService'];
+  ProfileCtrl.$inject = ['$scope', '$state', 'MLRest', 'userService', 'ngToast', '$rootScope'];
 
-  function ProfileCtrl($scope, $state, mlRest, userService) {
+  function ProfileCtrl($scope, $state, mlRest, userService, toast, $rootScope) {
     var ctrl = this;
     angular.extend(ctrl, {
-      user: null,
+      user: checkUser(userService.currentUser()),
       newEmail: '',
       addEmail: addEmail,
       removeEmail: removeEmail,
@@ -17,18 +21,23 @@
     });
 
     function addEmail() {
-      if (!ctrl.newEmail || hasEmailInputError()) {
-        return;
+      if (ctrl.user) {
+        if (!ctrl.newEmail || hasEmailInputError()) {
+          return;
+        }
+        ctrl.user.profile = ctrl.user.profile || {};
+        if (!ctrl.user.profile.emails) {
+          ctrl.user.profile.emails = [];
+        }
+        ctrl.user.profile.emails.push(ctrl.newEmail.trim());
+        ctrl.newEmail = '';
       }
-      if (!ctrl.user.emails) {
-        ctrl.user.emails = [];
-      }
-      ctrl.user.emails.push(ctrl.newEmail.trim());
-      ctrl.newEmail = '';
     }
 
     function removeEmail(index) {
-      ctrl.user.emails.splice(index, 1);
+      if (ctrl.user.profile && ctrl.user.profile.emails) {
+        ctrl.user.profile.emails.splice(index, 1);
+      }
     }
 
     function hasEmailInputError() {
@@ -41,32 +50,40 @@
     }
 
     function submit(form) {
-      if (form.$valid) {
+      if (form.$valid && ctrl.user.profile) {
         addEmail();
 
-        if (ctrl.user.emails) {
-          _.pull(ctrl.user.emails, '');
+        if (ctrl.user.profile.emails) {
+          _.pull(ctrl.user.profile.emails, '');
         }
 
         mlRest.updateDocument({
-          user: {
-            'fullname': ctrl.user.fullname,
-            'emails': ctrl.user.emails
-          }
+          user: ctrl.user.profile
         }, {
           format: 'json',
-          uri: '/api/users/' + ctrl.user.name + '.json'
-          // TODO: add read/update permissions here like this:
-          // 'perm:sample-role': 'read',
-          // 'perm:sample-role': 'update'
+          uri: '/api/users/' + ctrl.user.username + '.json'
         }).then(function(data) {
-          $state.go('root');
+          $rootScope.$broadcast('loginService:profile-changed');
+          toast.success('Submitted');
+          $state.go('root.landing');
+        }, function(response) {
+          toast.danger(response.data);
         });
       }
     }
 
     $scope.$watch(userService.currentUser, function(newValue) {
-      ctrl.user = newValue;
+      ctrl.user = checkUser(newValue);
     });
+
+    function checkUser(newValue) {
+      var user = angular.copy(newValue);
+      if (user && user.profile && user.profile.emails) {
+        if (!angular.isArray(user.profile.emails)) {
+          user.profile.emails = [user.profile.emails];
+        }
+      }
+      return user;
+    }
   }
 }());

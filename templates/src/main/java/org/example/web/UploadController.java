@@ -6,6 +6,8 @@ import java.nio.file.Path;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.marklogic.contentpump.ContentPump;
+import com.marklogic.contentpump.utilities.OptionsFileUtil;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.CredentialsProvider;
@@ -38,7 +40,7 @@ public class UploadController {
 
     /**
      * Using a REST-API-like URL so that the CORS request matcher matches it.
-     * 
+     *
      * @param request
      * @return
      * @throws Exception
@@ -81,11 +83,14 @@ public class UploadController {
             // Path to file
             bean.setInput_file_path(file.getAbsolutePath());
             if (bean.getInput_file_type() == null
-                    && (".csv".equals(extension) || ".xls".equals(extension) || ".xlsx".equals(extension))) {
+                && (".csv".equals(extension) || ".xls".equals(extension) || ".xlsx".equals(extension))) {
                 bean.setInput_file_type("delimited_text");
             }
 
-            bean.run();
+            String[] args = bean.buildArgs();
+            String[] expandedArgs = OptionsFileUtil.expandArguments(args);
+            logger.info(bean.viewArgs(expandedArgs));
+            ContentPump.runCommand(args);
         } catch (Exception ie) {
             throw new RuntimeException(ie);
         }

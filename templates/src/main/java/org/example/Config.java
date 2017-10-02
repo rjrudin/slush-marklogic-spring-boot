@@ -1,6 +1,8 @@
 package org.example;
 
 import org.apache.http.client.CredentialsProvider;
+import org.example.client.*;
+import org.example.util.URIUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,10 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 import com.marklogic.spring.http.RestConfig;
 import com.marklogic.spring.http.SimpleRestConfig;
-import com.marklogic.spring.http.proxy.HttpProxy;
-import com.marklogic.spring.security.authentication.MarkLogicAuthenticationManager;
 import com.marklogic.spring.security.context.SpringSecurityCredentialsProvider;
 import com.marklogic.spring.security.web.util.matcher.CorsRequestMatcher;
+import org.springframework.security.core.Authentication;
 
 /**
  * Extends Spring Boot's default web security configuration class and hooks in MarkLogic-specific classes from
@@ -21,7 +22,7 @@ import com.marklogic.spring.security.web.util.matcher.CorsRequestMatcher;
  */
 @Configuration
 @EnableWebSecurity
-public class Config extends WebSecurityConfigurerAdapter {
+public class Config extends WebSecurityConfigurerAdapter{
 
     /**
      * @return a config class with ML connection properties
@@ -37,41 +38,82 @@ public class Config extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * @return an HttpProxy that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
+     * A REST client that a Spring MVC controller can use for proxying requests to MarkLogic. By default, uses
      *         Spring Security for credentials - this relies on Spring Security not erasing the user's credentials so
      *         that the username/password can be passed to MarkLogic on every request for authentication.
+     * @return
      */
     @Bean
-    public HttpProxy httpProxy() {
-        return new HttpProxy(restConfig(), credentialsProvider());
+    public DigestRestClient digestRestClient() {
+        return new DigestRestClient();
     }
 
     /**
      * We seem to need this defined as a bean; otherwise, aspects of the default Spring Boot security will still remain.
-     * 
+     *
      * @return
      */
     @Bean
-    public MarkLogicAuthenticationManager markLogicAuthenticationManager() {
-        return new MarkLogicAuthenticationManager(restConfig());
+    public DigestAuthenticationManager digestAuthenticationManager() {
+        return new DigestAuthenticationManager();
     }
 
     /**
+     * Loads RestTemplate {@link org.springframework.web.client.RestTemplate} objects wired for Digest authentication.
+     *
+     * @return
+     */
+    @Bean
+    public DigestRestTemplateLoader digestRestTemplateLoader() {
+        return new DigestRestTemplateLoader();
+    }
+
+    /**
+     * Utility class for URI actions (decoding, etc.).
+     * @return
+     */
+    @Bean
+    public URIUtil uriUtil() {
+        return new URIUtil();
+    }
+
+    /*
+      Servlet Filter to compress large http responses.
+
+      Superseeded by the configuration in application.properties for Spring Boot which ONLY takes effect on embedded Tomcat.
+          server.compression.enabled=true
+          server.compression.min-response-size=128
+
+      UNCOMMENT the following bean to enable compression on standalone application server deployment as an alternative to
+           container-based configuration.
+      Requires the following in build.gradle:
+         compile ("com.github.ziplet:ziplet:2.2.0"){
+             exclude group: 'javax.servlet', module: 'servlet-api'
+             exclude group: 'org.slf4j', module: 'slf4j-api'
+         }
+
+       @ Bean
+        public Filter compressingFilter() {
+            return new CompressingFilter();
+        }
+     */
+
+    /**
      * Sets MarkLogicAuthenticationProvider as the authentication manager, which overrides the in-memory authentication
-     * manager that Spring Boot uses by default. We also have to set eraseCredentials to false so that the password is
-     * kept in the Authentication object, which allows HttpProxy to use it when authenticating against MarkLogic.
+     * manager that Spring Boot uses by default.  Configured to clear the credentials from the {@link Authentication}
+     * object after authenticating.
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         super.configure(auth);
-        auth.parentAuthenticationManager(markLogicAuthenticationManager());
-        auth.eraseCredentials(false);
+        auth.parentAuthenticationManager(digestAuthenticationManager());
+        auth.eraseCredentials(true);
     }
 
     /**
      * Configures what requests require authentication and which ones are always permitted. Uses CorsRequestMatcher to
      * allow for certain requests - e.g. put/post/delete requests - to be proxied successfully back to MarkLogic.
-     * 
+     *
      * This uses a form login by default, as for many MarkLogic apps (particularly demos), it's convenient to be able to
      * easily logout and login as a different user to show off security features. Spring Security has a very plain form
      * login page - you can customize this, just google for examples.
@@ -86,7 +128,7 @@ public class Config extends WebSecurityConfigurerAdapter {
     /**
      * Defines a set of URLs that are always permitted - these are based on the presumed contents of the
      * src/main/resources/static directory.
-     * 
+     *
      * @return
      */
     protected String[] getAlwaysPermittedPatterns() {
