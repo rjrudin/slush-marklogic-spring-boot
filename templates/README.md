@@ -4,9 +4,8 @@ Assuming you just cloned this repository, here's how to deploy and run the appli
 
 1. A [Java Development Kit (JDK) 1.7+ or 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (needed to compile a small amount of Java code in the Spring Boot app, as well as run the Spring Boot app)
 1. [Node 4.x+](https://nodejs.org/en/download/)
-1. [Bower](https://www.npmjs.com/package/bower)
+1. [Yarn](https://yarnpkg.com/en/docs/install)
 1. [Gulp](https://www.npmjs.com/package/gulp)
-1. [Git](https://git-scm.com/downloads) (required by Bower)
 1. (Optional) [Gradle](http://gradle.org/gradle-download/)
 
 Note that if you have Gradle installed locally already, you can run "gradle" instead of "./gradlew". 
@@ -31,13 +30,9 @@ Optional: To import 3,000 sample records, run the following command.
   
     ./gradlew -i importSampleData
     
-Install the Node dependencies (only needs to be done in the future when these change):
+Install the Node and JS dependencies (only needs to be done in the future when these change):
 
-    npm install
-
-Install the Bower dependencies (only needs to be done in the future when these change):
-
-    bower install
+    yarn install --ignore-engines
 
 Build the webapp (need to do this any time a file in the webapp is changed):
 

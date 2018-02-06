@@ -45,7 +45,7 @@ gulp.task('default', ['build']);
 /*
  * Perform the full build process so that Spring Boot has all the client files it needs.
  */
-gulp.task('build', function() {
+gulp.task('build', ['copy-bower'], function() {
     runSequence(['images', 'fonts', 'copy-app', 'styles', 'wiredep'], 'templates')
 });
 
@@ -169,6 +169,9 @@ gulp.task('clean-static', function (callback) {
     del(paths.dest.static, {force:true}, callback);
 });
 
-
+gulp.task('copy-bower', function (callback) {
+  return gulp.src("./node_modules/@bower_components")
+    .pipe(gulp.dest("./src/main/resources/static/bower_components/"))
+});
 
 module.exports = gulp;
