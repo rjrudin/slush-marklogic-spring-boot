@@ -170,7 +170,7 @@ gulp.task('clean-static', function (callback) {
 });
 
 gulp.task('copy-bower', function (callback) {
-  return gulp.src("./node_modules/@bower_components")
+  return gulp.src("./node_modules/@bower_components/**/*")
     .pipe(gulp.dest("./src/main/resources/static/bower_components/"))
 });
 
