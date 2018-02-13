@@ -5,6 +5,7 @@ Assuming you just cloned this repository, here's how to deploy and run the appli
 1. A [Java Development Kit (JDK) 1.7+ or 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (needed to compile a small amount of Java code in the Spring Boot app, as well as run the Spring Boot app)
 1. [Node 4.x+](https://nodejs.org/en/download/)
 1. [Yarn](https://yarnpkg.com/en/docs/install)
+    * install it globally, i.e. with -g flag
 1. [Gulp](https://www.npmjs.com/package/gulp)
 1. (Optional) [Gradle](http://gradle.org/gradle-download/)
 

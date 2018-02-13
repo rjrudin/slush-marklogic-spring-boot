@@ -45,7 +45,7 @@ gulp.task('default', ['build']);
 /*
  * Perform the full build process so that Spring Boot has all the client files it needs.
  */
-gulp.task('build', ['copy-bower'], function() {
+gulp.task('build', function() {
     runSequence(['images', 'fonts', 'copy-app', 'styles', 'wiredep'], 'templates')
 });
 
@@ -82,7 +82,8 @@ gulp.task('wiredep', ['clean-templates'], function () {
         .pipe(replace({regex:'<base href="/"[ ]?/>', replace:'<base href="/'+basePath+'"/>'}))
         .pipe(wiredep({
             exclude: ['angularjs'],
-            ignorePath: "../resources/static/"
+            ignorePath: "../resources/static/",
+            bowerJson: require('./package.json'),
         }))
         .pipe(gulp.dest(paths.dest.templates));
 });
@@ -169,9 +170,12 @@ gulp.task('clean-static', function (callback) {
     del(paths.dest.static, {force:true}, callback);
 });
 
-gulp.task('copy-bower', function (callback) {
-  return gulp.src("./node_modules/@bower_components/**/*")
-    .pipe(gulp.dest("./src/main/resources/static/bower_components/"))
+gulp.task('copy-bower', function () {
+  var packageJson = require("./package.json");
+  Object.keys(packageJson.dependencies).forEach(function(key){
+    gulp.src("./node_modules/" + key + "/**/*")
+      .pipe(gulp.dest("./src/main/resources/static/bower_components/" + key));
+  });
 });
 
 module.exports = gulp;
