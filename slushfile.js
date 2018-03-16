@@ -10,7 +10,6 @@
 
 var gulp = require('gulp'),
   gulpif = require('gulp-if'),
-  install = require('gulp-install'),
   conflict = require('gulp-conflict'),
   chmod = require('gulp-chmod'),
   template = require('gulp-template'),
@@ -201,7 +200,6 @@ gulp.task('default', function (done) {
                 .pipe(gulpif(isExecutable, chmod(755)))
                 .pipe(conflict('./', {defaultChoice: 'y'}))
                 .pipe(gulp.dest('./'))
-                .pipe(install())
                 .on('end', function () {
                     done();
                 });
