@@ -1,7 +1,7 @@
 {
   "name": "slush-marklogic-spring-boot",
   "description": "Generator for Angular/Spring Boot/MarkLogic apps",
-  "version": "1.0.0-rc",
+  "version": "1.0.0-rc1",
   "homepage": "https://github.com/rjrudin/slush-marklogic-spring-boot",
   "author": {
     "name": "Rob Rudin",
