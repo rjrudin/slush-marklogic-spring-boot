@@ -6,6 +6,7 @@ Assuming you just cloned this repository, here's how to deploy and run the appli
 1. [Node 4.x+](https://nodejs.org/en/download/)
 1. [Yarn](https://yarnpkg.com/en/docs/install)
     * install it globally, i.e. with -g flag
+1. [Bower](https://www.npmjs.com/package/bower) (Temporarily still required, even though Yarn is used now)
 1. [Gulp](https://www.npmjs.com/package/gulp)
 1. (Optional) [Gradle](http://gradle.org/gradle-download/)
 
@@ -35,9 +36,18 @@ Install the Node and JS dependencies (only needs to be done in the future when t
 
     yarn install --ignore-engines
 
+The change to Yarn instead of Bower isn't fully in effect yet, so still need to run "bower install":
+
+    bower install
+
 Build the webapp (need to do this any time a file in the webapp is changed):
 
     gulp build
+
+Assuming you're using the included Gradle wrapper (recommended, as this project only runs on Gradle 2), you'll need to 
+make the Gradle wrapper executable:
+
+    chmod 755 gradlew
 
 Fire up Spring Boot, which runs an embedded Tomcat server:
 
@@ -45,7 +55,10 @@ Fire up Spring Boot, which runs an embedded Tomcat server:
   OR
     
     java -jar build\libs\<app-name>-<version>.war
-    
+
+You can then go to http://localhost:(the port you selected while generating this project) to try out the application.
+
+
 ## What should I run while developing?
 
 This is a 3 tier architecture - Angular, Spring Boot, and MarkLogic - and thus, during development, 

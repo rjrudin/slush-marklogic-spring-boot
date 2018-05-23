@@ -1,5 +1,5 @@
 {
-  "name": "slush-gen-app-04",
+  "name": "<%= appName %>",
   "version": "0.0.0",
   "dependencies": {
 		"angular-animate": "~1.4.4",
