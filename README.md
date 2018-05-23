@@ -1,4 +1,4 @@
-# slush-marklogic-spring-boot [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-marklogic-spring-boot.png)](http://badges.enytc.com/for/npm/slush-marklogic-spring-boot)
+# slush-marklogic-spring-boot
 
 > Generator for Angular/Spring Boot/MarkLogic apps
 
@@ -6,15 +6,10 @@ This is similar to <a href="https://github.com/marklogic/slush-marklogic-node">s
 
 ## Prerequisites
 
-To install and use slush-marklogic-spring-boot, you need a few things installed locally first (unless otherwise noted, install the latest version of each):
+To install and use slush-marklogic-spring-boot, you need a couple things installed locally first (unless otherwise noted, install the latest version of each):
 
-1. A [Java Development Kit (JDK) 1.7+ or 1.8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (needed to compile a small amount of Java code in the Spring Boot app, as well as run the Spring Boot app)
 1. [Node 4.x+](https://nodejs.org/en/download/)
 1. [Slush](https://www.npmjs.com/package/slush)
-1. [Bower](https://www.npmjs.com/package/bower)
-1. [Gulp](https://www.npmjs.com/package/gulp)
-1. [Git](https://git-scm.com/downloads) (required by Bower)
-1. (Optional) [Gradle](http://gradle.org/gradle-download/). If you have Gradle already, great - use it - but be sure to only use Gradle 2! Gradle 3 and Spring Boot do not yet get along well. If you don't have Gradle installed already, you can use the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) that's included in the generated project. Just run e.g. "./gradlew" instead of "./gradle".
 
 ## Getting Started
 
@@ -38,36 +33,9 @@ Run the generator from within the new folder:
 $ cd my-app && slush marklogic-spring-boot
 ```
 
-As of version 0.1.x, the generator will install Bower and Node dependencies for you. 
-It doesn't yet deploy the MarkLogic application or build the webapp. It also assumes
-that your admin username/password is admin/admin. If you need to modify that, first do so in the gradle.properties file. Then run these commands (note that 0.1.x doesn't have the Gradle wrapper yet either):
+You'll now have a new project with its own README file, which you should consult for deploying the application within
+the project you just generated.
 
-    gradle mlDeploy
-    gulp build
-
-Once you've run those, you can launch Spring Boot via the command line:
-
-    gradle bootRun
-
-Or, since you have a Java middle tier, you'll probably want to load the project into
-an IDE like Eclipse and run Spring Boot from there:
-
-    gradle eclipse
-
-And then import the project and run "org.example.App".
-
-## What should I run while developing?
-
-This is a 3 tier architecture - Angular, Spring Boot, and MarkLogic - and thus, during development, there are 3 things you'll want to update and test, ideally without having to run a build task manually. Here's the best way to do that, IMO:
-
-1. In one terminal window, run "gulp watch" to process changes under src/main/webapp.
-2. In another terminal window, run "gradle bootRun". As of version 0.2.x, this will not only run Spring Boot, but a component in the webapp will automatically load new/modified MarkLogic modules, just like "gradle mlWatch". 
-
-According to the Boot docs, you should be able to change Java code, and Boot will reload if you have Boot's devtools library on the classpath. I have not had good luck with that yet. But changing Java code is infrequent, and so far, it's not a big deal to just re-run this task after changing Java code. 
-
-I have had luck with Boot restarting when running Boot in Eclipse, but it restarts more often than I want it to - I haven't looked into trying to configure when it should restart and when it should not.
-
-For now, I'd stick with "gradle bootRun" from the command line. 
 
 ## Why Spring Boot?
 
